@@ -1,4 +1,5 @@
 import random
+import math
 #Starting with basic test inventory
 inventory = {
     'seeds': 0,
@@ -16,19 +17,65 @@ inventory = {
     'XP': 0,
     'gathercoins': 0
 }
+#In work on implementing loot tiers
+uncommon = {
+   'seeds': 0,
+   'rice': 0,
+   'beans': 0,
+   'wood': 0,
+   'rocks': 0,
+   'berries': 0,
+   'bread': 0,
+   'water': 0
+}
+common = {
+   'apples': 0,
+   'oranges': 0,
+   'bananas': 0,
+   'spinach': 0,
+   'onions': 0,
+   'carrots': 0,
+   'hemp': 0,
+   'flax': 0
+}
 prepared = {}
 #Recipe
+#In work on adding recipes to serve as an exclusive 'shop' item list
 recipes = {
 'carrotcake': {'carrots': 10, 'bread': 10, 'berries': 16},
 'fruitbowl': {'bananas': 6, 'oranges': 4, 'apples': 2, 'berries': 10},
-'basicmeal': {'rice': 50, 'beans': 25}
+'basicmeal': {'rice': 50, 'beans': 25},
+'bow': {'wood': 2000, 'twine': 40},
+'twine': {'hemp': 10, 'flax': 10},
+'fishingrod': {'wood': 500, 'twine': 20}
 }
-#Created function gather(inventory) that the user can select to 'gather'random things ##
-def Gather(inventory):
-    for item in inventory:
-        inventory[item] = inventory[item] + random.randint(10,12)
-        print(f'You found {inventory[item]} {item}')
 
+
+
+#In work on updating gather function to also take in player level
+#Created function gather(inventory) that the user can select to 'gather'random things ##
+def Gather(inventory, player_level, common, uncommon):
+    num_items = max(1, player_level // 10)
+
+    if random.random() < 0.8:
+        items = common
+    else:
+        items = uncommon
+
+    selected_items = random.sample(list(items.keys()), num_items)
+
+    items_to_add = {}
+
+    for item in selected_items:
+        if item not in inventory:
+            inventory[item] = 0
+        items_to_add[item] = random.randint(1, 3)
+
+    print(f"You found: {', '.join([f'{items_to_add[item]} {item}' for item in items_to_add])}")
+    for item in items_to_add:
+        inventory[item] += items_to_add[item]
+    
+    return inventory
 #Created function Make(prepared, recipes) to make prepared items into their recipes
 def Make(prepared, recipes):
    for recipe_name, recipe in recipes.items():
@@ -133,11 +180,22 @@ def Trade(inventory):
     
 #Basic while loop to allow user to 'play', must be set true to allow users to call functions
 playing = True;
+player_level = 1
+
+XP = 0
+next_level = 45
 while playing:
 #Generic prompt for test purposes
    response = input('Gather or not!')
    if response == 'gather':
-        Gather(inventory)
+        XP_num = math.floor((player_level/10) * random.randint(10, 120)) + random.randint(5,10)
+        XP += XP_num
+        print(f'You gained {XP_num} XP!')
+        if XP >= next_level:
+          player_level += 1
+          next_level = next_level * 1.3
+          print(f'You are now level {player_level}')
+        Gather(inventory, player_level, common, uncommon)
    elif response == 'prepare':
         Prep(inventory)
    elif response == 'make':
@@ -148,8 +206,12 @@ while playing:
    elif response == 'inventory':
       print(f'This is your inventory: {inventory}')
       print(f'This is your prepared: {prepared}')
+      print(f'You have {XP} total XP')
+      print(f'You will reach your next level with {next_level} XP!')
+      print(f'Your level is {player_level}')
    elif response == 'sell':
       Sell(inventory)
    elif response == 'trade':
       Trade(inventory)
+   
 
