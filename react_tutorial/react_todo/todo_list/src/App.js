@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import './App.css';
 
 function App() {
-  const [todos, setTodos] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [inputValue, setInputValue] = useState('');
 
   const handleInputChange = (event) => {
@@ -10,32 +11,43 @@ function App() {
 
   const handleFormSubmit = (event) => {
     event.preventDefault();
-    if (inputValue) {
-      setTodos([...todos, { text: inputValue, completed: false }]);
-      setInputValue('');
-    }
+    if (!inputValue) return;
+    const newTask = {
+      text: inputValue,
+      completed: false
+    };
+    setTasks([...tasks, newTask])
+    setInputValue('');
   };
 
-  const handleTodoClick = (index) => {
-    const newTodos = [...todos];
-    newTodos[index].completed = !newTodos[index].completed;
-    setTodos(newTodos);
+  const handleTaskClick = (index) => {
+    const newTasks = [...tasks];
+    newTasks[index].completed = !newTasks[index].completed;
+    setTasks(newTasks);
+  };
+
+  const handleTaskRemove = (index) => {
+    const newTasks = [...tasks];
+    newTasks.splice(index, 1);
+    setTasks(newTasks);
   };
 
   return (
-    <div>
-      <h1>Todo List</h1>
+    <div className="container">
+      <h1 className="title">Tasks</h1>
       <form onSubmit={handleFormSubmit}>
-        <input type="text" value={inputValue} onChange={handleInputChange} />
-        <button type="submit">Add</button>
+        <input type="text" value={inputValue} onChange={handleInputChange} placeholder="Add task..." className="input-task" />
+        <button type="submit" className="button-add">Add</button>
       </form>
       <ul>
-        {todos.map((todo, index) => (
-          <li key={index} onClick={() => handleTodoClick(index)} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
-            {todo.text}
+        {tasks.map((task, index) => (
+          <li key={index} className="task-item" onClick={() => handleTaskClick(index)}>
+            <input type="checkbox" checked={task.completed} className="task-checkbox" />
+            <span className="task-text">{task.text}</span>
           </li>
         ))}
       </ul>
+      <button className="button-clear" onClick={() => setTasks([])}>Clear</button>
     </div>
   );
 }
