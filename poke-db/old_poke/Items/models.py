@@ -5,6 +5,7 @@ class Item (models.Model):
     value = models.IntegerField()
     stat_boost = models.IntegerField()
     item_class = models.CharField(max_length=10, default='health')
+    item_type = models.CharField(max_length=15, default='normal')
     quantity = models.IntegerField(default=1)
 
     def __str__ (self):

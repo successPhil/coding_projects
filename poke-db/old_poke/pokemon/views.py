@@ -9,43 +9,30 @@ from .serializers import PokemonSerializer
 class PokemonAPIView(APIView):
     def get(self, request):
         try:
-            # 1. Fetch Pokémon Names
-            names = self.fetch_pokemon_names()
-            
-            # 2. Fetch Generation 1 Moves
-            moves = self.fetch_gen1_moves()
-            
-            # 3. Iterate Over Pokémon Names and Fetch Detailed Data
-            details = self.fetch_pokemon_details(names)
-            
-            # 4. Process and Serialize the Data
-            processed_data = self.process_pokemon_data(details, moves)
-            
+            if not Pokemon.objects.exists():
+                initial_data = self.fetch_initial_pokemon_data()
+                names = [pokemon["name"] for pokemon in initial_data["pokemon_species"]]
+                all_moves = [move_data["name"] for move_data in initial_data["moves"]]
+                details, all_types = self.fetch_pokemon_details(names)
+                processed_data = self.process_pokemon_data(details, all_moves, all_types)
+            processed_data = self.retrieve_processed_data()
+
             return Response(processed_data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def fetch_pokemon_names(self):
-        url = "https://pokeapi.co/api/v2/pokemon?limit=151"  # Replace with the correct URL
+        
+    def fetch_initial_pokemon_data(self):
+        url = "https://pokeapi.co/api/v2/generation/1"
         response = requests.get(url)
         if response.status_code == 200:
-            data = response.json()
-            return [pokemon["name"] for pokemon in data["results"]]
+            return response.json()
         else:
-            raise Exception("Failed to fetch Pokémon names")
-
-    def fetch_gen1_moves(self):
-        url = "https://pokeapi.co/api/v2/generation/1"  # URL to fetch Generation 1 moves
-        response = requests.get(url)
-        if response.status_code == 200:
-            data = response.json()
-            moves = [move_data["name"] for move_data in data["moves"]]
-            return moves
-        else:
-            raise Exception("Failed to fetch Generation 1 moves")
+            raise Exception("Failed to fetch pokemon data")
 
     def fetch_pokemon_details(self, names):
         details = []
+        all_types = set()
         for name in names:
             # Make a separate API request for each Pokémon name
             url = f"https://pokeapi.co/api/v2/pokemon/{name}"  # Replace with the correct URL
@@ -60,52 +47,71 @@ class PokemonAPIView(APIView):
                     "back_image_url": pokemon_data["sprites"]["back_default"],
                 }
                 details.append(pokemon_details)
+                all_types.update(pokemon_details["type"])
             else:
                 raise Exception(f"Failed to fetch data for Pokémon: {name}")
-        return details
+        return details, list(all_types)
 
-    def process_pokemon_data(self, details, moves):
+    def process_pokemon_data(self, details, all_moves, all_types):
         processed_data = []
         for detail in details:
-            # Customize and process the data here as needed
             name = detail["name"]
             type_str = ", ".join(detail["type"])
             front_image_url = detail["front_image_url"]
             back_image_url = detail["back_image_url"]
-            level = self.calculate_level()
-            experience, total_experience = self.calculate_experience(level)
-            health = self.calculate_health(level)
-            pokemon_moves = self.get_random_moves(moves)
+            self.create_pokemon_with_moves(name=name, types=type_str, front_image_url=front_image_url, back_image_url=back_image_url, all_moves=all_moves, all_types=all_types)
+            pokemon_moves = self.get_random_moves(all_moves, all_types)
 
             processed_detail = {
                 "name": name,
                 "type": type_str,
                 "front_image_url": front_image_url,
                 "back_image_url": back_image_url,
-                "health": health,
-                "level": level,
-                "experience": f"{experience}/{total_experience}",
                 "moves": pokemon_moves,
             }
             processed_data.append(processed_detail)
         return processed_data
 
-    def calculate_health(self, level):
-        base_health = 50  # Adjust the base health value as needed
-        health = base_health + (level * 10)  # Increase health by 10 for each level
-        return health
-
-    def calculate_level(self):
-        return random.randint(3, 10)  # Random level between 1 and 100
-
-    def calculate_experience(self, level):
-        # Calculate total experience needed for the current level and the next level
-        current_experience = random.randint(0, 1000)  # Random current experience
-        total_experience = level * 45  # Adjust the formula as needed
-        return current_experience, total_experience
-
-    def get_random_moves(self, moves):
+    def get_random_moves(self, all_moves, all_types):
         num_moves = 4  # Number of moves a Pokémon can have
-        random_moves = random.sample(moves, num_moves)  # Select random moves from the list
-        moves_with_damage = [{"name": move, "damage": random.randint(2, 10)} for move in random_moves]
+        random_moves = random.sample(all_moves, num_moves)  # Select random moves from the list
+        moves_with_damage = [{"name": move, "damage": random.randint(2, 10), "type": random.choice(all_types)} for move in random_moves]
         return moves_with_damage
+    
+    def create_pokemon_with_moves(self, name, types, front_image_url, back_image_url, all_moves, all_types):
+        pokemon = Pokemon.objects.create(
+            name=name,
+            types=types,
+            front_image_url=front_image_url,
+            back_image_url=back_image_url,
+        )
+
+        move_data = self.get_random_moves(all_moves, all_types)
+        for move in move_data:
+            move = Move.objects.create(
+                name=move["name"],
+                type=move["type"],
+                damage=move["damage"]
+            )
+            pokemon.moves.add(move)
+        return pokemon
+    
+    def retrieve_processed_data(self):
+        processed_data = []
+
+        # Query the database to get the processed data
+        pokemons = Pokemon.objects.all()
+
+        for pokemon in pokemons:
+            moves = [{"name": move.name, "damage": move.damage, "type": move.type} for move in pokemon.moves.all()]
+
+            processed_detail = {
+                "name": pokemon.name,
+                "types": pokemon.types,
+                "front_image_url": pokemon.front_image_url,
+                "back_image_url": pokemon.back_image_url,
+                "moves": moves,
+            }
+            processed_data.append(processed_detail)
+
+        return processed_data

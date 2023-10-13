@@ -108,6 +108,12 @@ class Trainer(models.Model):
         #         print(f'Not enough money to purchase {qty} {item.name}')
         # else:
         #     print(f'Not enough {item.name} in stock')
+
+    def add_pokemon(self, pokemon):
+        self.pokemon.add(pokemon)
+    
+    def remove_pokemon(self, pokemon):
+        self.pokemon.remove(pokemon)
                     
 
 
