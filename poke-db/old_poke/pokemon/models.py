@@ -10,6 +10,7 @@ class Pokemon(models.Model):
     health = models.IntegerField(default=75)
     max_health = models.IntegerField(default=75)
     power = models.IntegerField(default=15)
+    defense = models.IntegerField(default=10)
     moves = models.ManyToManyField(Move, related_name='pokemon_moves', blank=True)
     experience = models.IntegerField(default=0)
     totalXP = models.IntegerField(default=60)

@@ -4,6 +4,7 @@ from pokemon.models import Pokemon
 from Items.models import Item
 from Shop.models import Shop
 from Shop.views import create_initial_shop
+import random
 
 class Trainer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -12,7 +13,7 @@ class Trainer(models.Model):
     pokemon = models.ManyToManyField(Pokemon, related_name='trainer_pokemon', blank=True, default=None)
     items = models.ManyToManyField(Item, related_name='trainers_items', default=None, blank=True)
     shop = models.OneToOneField(Shop, on_delete=models.CASCADE, default=None, null=True)
-
+    enemy_pokemon = models.ManyToManyField(Pokemon, related_name='enemy_pokemon', blank=True, default=None)
 
 #Setting up initial shop for Trainer
     def set_initial_shop(self):
@@ -20,7 +21,6 @@ class Trainer(models.Model):
             initial_shop = create_initial_shop()  # Call the method to create initial shop
             self.shop = initial_shop
             self.save()
-#Adding a Item to a Trainer
 
     def make_money(self):
         self.money += 1000
@@ -36,9 +36,7 @@ class Trainer(models.Model):
                 "item_class": item.item_class,
                 "quantity": item.quantity
             }
-            print(item_details)
             items_list.append(item_details)
-
         return items_list
     
     def list_shop(self):
@@ -52,7 +50,6 @@ class Trainer(models.Model):
                 "item_class": item.item_class,
                 "quantity": item.quantity
             }
-            print(item_details)
             items_list.append(item_details)
 
         return items_list
@@ -109,11 +106,28 @@ class Trainer(models.Model):
         # else:
         #     print(f'Not enough {item.name} in stock')
 
+    def use_item(self, item, pokemon, qty=1):
+        if item.item_class == 'health':
+            pokemon.increase_health(item.stat_boost * qty)
+            item.decrement_quantity(qty)
+
     def add_pokemon(self, pokemon):
         self.pokemon.add(pokemon)
     
     def remove_pokemon(self, pokemon):
         self.pokemon.remove(pokemon)
+
+    def first_pokemon(self):
+        if not self.pokemon.exists():
+            all_pokemon = Pokemon.objects.all()
+            pokemon_choice = random.choice(all_pokemon)
+            self.add_pokemon(pokemon_choice)
+    
+    def get_enemy_pokemon(self):
+        if not self.enemy_pokemon.exists():
+            all_pokemon = Pokemon.objects.all()
+            pokemon_choice = random.choice(all_pokemon)
+            self.enemy_pokemon.add(pokemon_choice)
                     
 
 
