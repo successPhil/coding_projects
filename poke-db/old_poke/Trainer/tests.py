@@ -176,7 +176,7 @@ class SignupViewTest(APITestCase):
         self.assertEqual(pokemon_initial_health, pokemon_final_health)
         self.assertEqual(item_final_qty + 2, self.initial_item_qty)
 
-    def test_use_item_bonus_default(self):
+    def test_use_item_bonus_default_health(self):
         poison = Pokemon.objects.create(name='bulbasaur',types='grass, poison', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg')
         self.trainer.add_pokemon(poison)
         trainer_poke = self.trainer.pokemon.get(name='bulbasaur')
@@ -236,7 +236,7 @@ class SignupViewTest(APITestCase):
         self.assertEqual(final_health - 3000, initial_health) #Check we don't get a bonus for electric on grass, poison
 
 
-    def test_use_item_bonus_multiple(self):
+    def test_use_item_bonus_multiple_health(self):
         ghost = Pokemon.objects.create(name='gengar',types='ghost, poison', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg')
         self.trainer.add_pokemon(ghost)
         trainer_poke = self.trainer.pokemon.get(name='gengar')
@@ -307,6 +307,64 @@ class SignupViewTest(APITestCase):
         final_health = trainer_poke.health
         self.assertEqual(final_health - 9000, initial_health) #Check we don't get a bonus for fairy on ghost, poison
 
+    def test_use_item_bonus_default_maxhealth(self):
+        dragon = Pokemon.objects.create(name='dragonite',types='dragon, flying', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg')
+        self.trainer.add_pokemon(dragon)
+        trainer_poke = self.trainer.pokemon.get(name='dragonite')
+        initial_max_health = trainer_poke.max_health
+        #Testing dragon max_health Item (bonus)
+
+        self.trainer.make_money()
+        self.trainer.make_money()
+        dragon_max_health = self.trainer.shop.items.get(name='Dragonfire Elixir')
+        before_purchase = self.trainer.money
+        store_qty_before = dragon_max_health.quantity
+        self.trainer.buy_item(dragon_max_health)
+        after_purchase = self.trainer.money
+        store_qty_after = dragon_max_health.quantity
+        self.assertEqual(after_purchase + dragon_max_health.value, before_purchase) #Check money properly deducted
+        self.assertEqual(store_qty_after, store_qty_before - 1) #Check store decrements quantity
+        trainer_item = self.trainer.items.get(name='Dragonfire Elixir')
+        self.assertEqual(trainer_item.quantity, 1) #Check trainer successfully has Item
+        self.trainer.use_item(trainer_item, trainer_poke)
+        final_maxhealth = trainer_poke.max_health
+        self.assertEqual(final_maxhealth - 150, initial_max_health) #Check bonus properly applied
+
+        #Testing flying max_health Item (bonus)
+        initial_max_health = trainer_poke.max_health
+        self.trainer.make_money()
+        self.trainer.make_money()
+        flying_max_health = self.trainer.shop.items.get(name='Aerial Draft Elixir')
+        before_purchase = self.trainer.money
+        store_qty_before = flying_max_health.quantity
+        self.trainer.buy_item(flying_max_health)
+        after_purchase = self.trainer.money
+        store_qty_after = flying_max_health.quantity
+        self.assertEqual(after_purchase + flying_max_health.value, before_purchase) #Check money properly deducted
+        self.assertEqual(store_qty_after, store_qty_before - 1) #Check store decrements quantity
+        trainer_item = self.trainer.items.get(name='Aerial Draft Elixir')
+        self.assertEqual(trainer_item.quantity, 1) #Check trainer successfully has Item
+        self.trainer.use_item(trainer_item, trainer_poke)
+        final_maxhealth = trainer_poke.max_health
+        self.assertEqual(final_maxhealth - 150, initial_max_health) #Check bonus properly applied
+
+        #Testing rock max_health Item (no bonus)
+        initial_max_health = trainer_poke.max_health
+        self.trainer.make_money()
+        self.trainer.make_money()
+        rock_max_health = self.trainer.shop.items.get(name='Stoneshield Tonic')
+        before_purchase = self.trainer.money
+        store_qty_before = rock_max_health.quantity
+        self.trainer.buy_item(rock_max_health)
+        after_purchase = self.trainer.money
+        store_qty_after = rock_max_health.quantity
+        self.assertEqual(after_purchase + rock_max_health.value, before_purchase) #Check money properly deducted
+        self.assertEqual(store_qty_after, store_qty_before - 1) #Check store decrements quantity
+        trainer_item = self.trainer.items.get(name='Stoneshield Tonic')
+        self.assertEqual(trainer_item.quantity, 1) #Check trainer successfully has Item
+        self.trainer.use_item(trainer_item, trainer_poke)
+        final_maxhealth = trainer_poke.max_health
+        self.assertEqual(final_maxhealth - 75, initial_max_health) #Check bonus properly applied
 
     def test_add_pokemon(self):
         self.trainer.add_pokemon(self.pokemon)
