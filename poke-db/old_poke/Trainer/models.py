@@ -88,6 +88,7 @@ class Trainer(models.Model):
                 value=item.value,
                 stat_boost=item.stat_boost,
                 item_class=item.item_class,
+                item_type=item.item_type,
                 quantity=0
             )
             self.items.add(trainer_item)
@@ -113,10 +114,10 @@ class Trainer(models.Model):
             'damage': pokemon.increase_power,
             'defense': pokemon.increase_defense
         }
-
+        type_bonus = 2 if item.item_type in pokemon.types else 1
         item_function = item_map.get(item.item_class)
         if item_function:
-            item_function(item.stat_boost * qty)
+            item_function(item.stat_boost * qty * type_bonus)
             item.decrement_quantity(qty)
 
 

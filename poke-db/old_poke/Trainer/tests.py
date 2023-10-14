@@ -176,6 +176,138 @@ class SignupViewTest(APITestCase):
         self.assertEqual(pokemon_initial_health, pokemon_final_health)
         self.assertEqual(item_final_qty + 2, self.initial_item_qty)
 
+    def test_use_item_bonus_default(self):
+        poison = Pokemon.objects.create(name='bulbasaur',types='grass, poison', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg')
+        self.trainer.add_pokemon(poison)
+        trainer_poke = self.trainer.pokemon.get(name='bulbasaur')
+       
+        trainer_poke.increase_max_health(7000)
+        self.trainer.make_money()
+        self.trainer.make_money()
+        poison_health = self.trainer.shop.items.get(name='Venombane Elixir')
+        before_purchase = self.trainer.money
+        store_qty_before = poison_health.quantity
+        self.trainer.buy_item(poison_health)
+        after_purchase = self.trainer.money
+        store_qty_after = poison_health.quantity
+        self.assertEqual(after_purchase + poison_health.value, before_purchase) #Check money properly deducted
+        self.assertEqual(store_qty_after, store_qty_before - 1) #Check store decrements quantity
+        trainer_item = self.trainer.items.get(name='Venombane Elixir')
+        self.assertEqual(trainer_item.quantity, 1) #Check trainer successfully has Item
+        initial_health = trainer_poke.health
+        self.trainer.use_item(trainer_item, trainer_poke)
+        final_health = trainer_poke.health
+        self.assertEqual(final_health - 6000, initial_health)
+
+        trainer_poke.decrease_health(6000)
+        self.trainer.make_money()
+        self.trainer.make_money()
+        grass_health = self.trainer.shop.items.get(name='Photosynthesis Potion')
+        before_purchase = self.trainer.money
+        store_qty_before = grass_health.quantity
+        self.trainer.buy_item(grass_health)
+        after_purchase = self.trainer.money
+        store_qty_after = grass_health.quantity
+        trainer_item = self.trainer.items.get(name='Photosynthesis Potion')
+        self.assertEqual(trainer_item.quantity, 1)
+        self.assertEqual(after_purchase + grass_health.value, before_purchase)
+        self.assertEqual(store_qty_after, store_qty_before - 1)
+        initial_health = trainer_poke.health
+        self.trainer.use_item(trainer_item, trainer_poke)
+        final_health = trainer_poke.health
+        self.assertEqual(final_health - 6000, initial_health)
+
+        trainer_poke.decrease_health(6000)
+        self.trainer.make_money()
+        self.trainer.make_money()
+        electric_health = self.trainer.shop.items.get(name='Electroshock Serum')
+        before_purchase = self.trainer.money
+        store_qty_before = electric_health.quantity
+        self.trainer.buy_item(electric_health)
+        after_purchase = self.trainer.money
+        store_qty_after = electric_health.quantity
+        trainer_item = self.trainer.items.get(name='Electroshock Serum')
+        self.assertEqual(trainer_item.quantity, 1)
+        self.assertEqual(after_purchase + electric_health.value, before_purchase)
+        self.assertEqual(store_qty_after, store_qty_before - 1)
+        initial_health = trainer_poke.health
+        self.trainer.use_item(trainer_item, trainer_poke)
+        final_health = trainer_poke.health
+        self.assertEqual(final_health - 3000, initial_health) #Check we don't get a bonus for electric on grass, poison
+
+
+    def test_use_item_bonus_multiple(self):
+        ghost = Pokemon.objects.create(name='gengar',types='ghost, poison', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg')
+        self.trainer.add_pokemon(ghost)
+        trainer_poke = self.trainer.pokemon.get(name='gengar')
+       
+        trainer_poke.increase_max_health(20000)
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        ghost_health = self.trainer.shop.items.get(name='Ghostly Haze')
+        before_purchase = self.trainer.money
+        store_qty_before = ghost_health.quantity
+        self.trainer.buy_item(ghost_health, 3)
+        after_purchase = self.trainer.money
+        store_qty_after = ghost_health.quantity
+        self.assertEqual(after_purchase + ghost_health.value * 3, before_purchase) #Check money properly deducted
+        self.assertEqual(store_qty_after, store_qty_before - 3) #Check store decrements quantity
+        trainer_item = self.trainer.items.get(name='Ghostly Haze')
+        self.assertEqual(trainer_item.quantity, 3) #Check trainer successfully has Item
+        initial_health = trainer_poke.health
+        self.trainer.use_item(trainer_item, trainer_poke, 3)
+        final_health = trainer_poke.health
+        self.assertEqual(final_health - 18000, initial_health)
+
+        trainer_poke.decrease_health(18000)
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        poison_health = self.trainer.shop.items.get(name='Venombane Elixir')
+        before_purchase = self.trainer.money
+        store_qty_before = poison_health.quantity
+        self.trainer.buy_item(poison_health, 2)
+        after_purchase = self.trainer.money
+        store_qty_after = poison_health.quantity
+        trainer_item = self.trainer.items.get(name='Venombane Elixir')
+        self.assertEqual(trainer_item.quantity, 2)
+        self.assertEqual(after_purchase + poison_health.value * 2, before_purchase)
+        self.assertEqual(store_qty_after, store_qty_before - 2)
+        initial_health = trainer_poke.health
+        self.trainer.use_item(trainer_item, trainer_poke, 2)
+        final_health = trainer_poke.health
+        self.assertEqual(final_health - 12000, initial_health)
+
+        trainer_poke.decrease_health(12000)
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        fairy_health = self.trainer.shop.items.get(name='Fae Essence Elixir')
+        before_purchase = self.trainer.money
+        store_qty_before = fairy_health.quantity
+        self.trainer.buy_item(fairy_health, 3)
+        after_purchase = self.trainer.money
+        store_qty_after = fairy_health.quantity
+        trainer_item = self.trainer.items.get(name='Fae Essence Elixir')
+        self.assertEqual(trainer_item.quantity, 3)
+        self.assertEqual(after_purchase + fairy_health.value * 3, before_purchase)
+        self.assertEqual(store_qty_after, store_qty_before - 3)
+        initial_health = trainer_poke.health
+        self.trainer.use_item(trainer_item, trainer_poke, 3)
+        final_health = trainer_poke.health
+        self.assertEqual(final_health - 9000, initial_health) #Check we don't get a bonus for fairy on ghost, poison
+
+
     def test_add_pokemon(self):
         self.trainer.add_pokemon(self.pokemon)
         self.assertEqual(self.trainer.pokemon.count() - 1, self.initial_pokemon_count)
