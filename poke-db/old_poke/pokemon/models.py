@@ -30,3 +30,12 @@ class Pokemon(models.Model):
             self.health += missing_health
         else:
             self.health += amount
+
+    def increase_max_health(self, amount):
+        self.max_health += amount
+
+    def increase_power(self, amount):
+        self.power += amount
+
+    def increase_defense(self, amount):
+        self.defense += amount

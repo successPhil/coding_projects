@@ -23,6 +23,8 @@ class test_pokemon(APITestCase):
         self.pokemon = Pokemon(name='bulbasaur', types='grass', front_image_url='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png', back_image_url='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/1.png')
         self.initial_health = self.pokemon.health
         self.initial_max_health = self.pokemon.max_health
+        self.initial_power = self.pokemon.power
+        self.initial_defense = self.pokemon.defense
 
     def test_initial_data_fetch(self):
         response = self.client.get('/api/pokemon/')
@@ -78,6 +80,25 @@ class test_pokemon(APITestCase):
         self.assertNotEqual(current_health + 35, self.pokemon.health) #Check we do not over heal
         current_health = self.pokemon.health
         self.assertEqual(self.initial_health, current_health) #Check that full health has not changed
+
+    def test_increase_max_health(self):
+        self.pokemon.increase_max_health(45)
+        current_max_health = self.pokemon.max_health
+        self.assertEqual(current_max_health - 45, self.initial_max_health)
+
+    def test_increase_power(self):
+        self.pokemon.increase_power(30)
+        current_power = self.pokemon.power
+        self.assertEqual(current_power - 30, self.initial_power)
+
+    def test_increase_defense(self):
+        self.pokemon.increase_defense(15)
+        current_defense = self.pokemon.defense
+        self.assertEqual(current_defense - 15, self.initial_defense)
+
+    
+
+    
 
 
     

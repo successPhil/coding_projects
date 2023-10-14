@@ -107,9 +107,18 @@ class Trainer(models.Model):
         #     print(f'Not enough {item.name} in stock')
 
     def use_item(self, item, pokemon, qty=1):
-        if item.item_class == 'health':
-            pokemon.increase_health(item.stat_boost * qty)
+        item_map = {
+            'health': pokemon.increase_health,
+            'maxhealth': pokemon.increase_max_health,
+            'damage': pokemon.increase_power,
+            'defense': pokemon.increase_defense
+        }
+
+        item_function = item_map.get(item.item_class)
+        if item_function:
+            item_function(item.stat_boost * qty)
             item.decrement_quantity(qty)
+
 
     def add_pokemon(self, pokemon):
         self.pokemon.add(pokemon)

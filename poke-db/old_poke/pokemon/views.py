@@ -97,21 +97,6 @@ class PokemonAPIView(APIView):
         return pokemon
     
     def retrieve_processed_data(self):
-        processed_data = []
-
-        # Query the database to get the processed data
         pokemons = Pokemon.objects.all()
-
-        for pokemon in pokemons:
-            moves = [{"name": move.name, "damage": move.damage, "type": move.type} for move in pokemon.moves.all()]
-
-            processed_detail = {
-                "name": pokemon.name,
-                "types": pokemon.types,
-                "front_image_url": pokemon.front_image_url,
-                "back_image_url": pokemon.back_image_url,
-                "moves": moves,
-            }
-            processed_data.append(processed_detail)
-
-        return processed_data
+        serializer = PokemonSerializer(pokemons, many=True)
+        return serializer.data
