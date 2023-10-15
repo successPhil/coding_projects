@@ -25,6 +25,9 @@ class test_pokemon(APITestCase):
         self.initial_max_health = self.pokemon.max_health
         self.initial_power = self.pokemon.power
         self.initial_defense = self.pokemon.defense
+        self.initial_level = self.pokemon.level
+        self.initial_exp = self.pokemon.experience
+        self.initial_totalXP = self.pokemon.totalXP
 
     def test_initial_data_fetch(self):
         response = self.client.get('/api/pokemon/')
@@ -95,6 +98,31 @@ class test_pokemon(APITestCase):
         self.pokemon.increase_defense(15)
         current_defense = self.pokemon.defense
         self.assertEqual(current_defense - 15, self.initial_defense)
+
+    def test_level_up(self):
+        self.pokemon.level_up()
+        self.assertEqual(self.pokemon.level, self.initial_level +1)
+    
+    def test_gain_experience(self):
+        self.pokemon.gain_experience(60)
+        self.assertEqual(self.pokemon.level, self.initial_level + 1)
+        self.assertEqual(self.pokemon.experience, 0)
+        self.assertGreater(self.pokemon.totalXP, 60)
+
+    def test_gain_experience_overlevel(self):
+        self.pokemon.gain_experience(69)
+        self.assertEqual(self.pokemon.level, self.initial_level + 1)
+        self.assertEqual(self.pokemon.experience, 9)
+        self.assertGreater(self.pokemon.totalXP, 60)
+
+    def test_gain_experience_largeamount(self):
+        self.pokemon.gain_experience(2600000)
+        self.assertEqual(self.pokemon.level, self.initial_level + 97)
+
+
+
+
+
 
     
 

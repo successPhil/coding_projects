@@ -39,3 +39,20 @@ class Pokemon(models.Model):
 
     def increase_defense(self, amount):
         self.defense += amount
+    
+    def level_up(self):
+        additional_XP = int((self.totalXP/20) + self.level ** 1.3)
+        self.level += 1
+        self.totalXP+= additional_XP
+        self.save()
+
+    def gain_experience(self, experience):
+        self.experience += experience
+
+        # Check if the Pokémon has gained enough experience to level up
+        while self.experience >= self.totalXP:
+            self.experience -= self.totalXP  # Deduct totalXP for leveling up
+            self.level_up()
+
+        # Save any remaining experience
+        self.save()

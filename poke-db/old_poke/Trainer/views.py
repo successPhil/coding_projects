@@ -1,4 +1,6 @@
 from rest_framework.generics import CreateAPIView
+from rest_framework.views import APIView
+from rest_framework import status
 from django.contrib.auth.models import User
 from Trainer.serializers import SignupSerializer, TrainerSerializer
 from rest_framework.permissions import AllowAny
@@ -6,6 +8,7 @@ from rest_framework.response import Response
 from Trainer.models import Trainer
 from Items.models import Item
 from Shop.views import create_initial_shop
+from pokemon.serializers import PokemonSerializer
 
 # handles request and parses body for username and password
 class SignupView(CreateAPIView):
@@ -46,3 +49,18 @@ class SignupView(CreateAPIView):
                 'user_id': user.id,
                 'trainer': trainer_serializer.data,
             })
+    
+class TrainerPokemonView(APIView):
+    def get(self, request):
+        user = request.user
+
+        try:
+            trainer = Trainer.objects.get(user=user)  # Ensure trainer is retrieved correctly
+            all_pokemon = trainer.pokemon.all()  # Ensure the queryset is correct
+            
+            # Correct the serializer to use PokemonSerializer and add many=True
+            serializer = PokemonSerializer(all_pokemon, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Trainer.DoesNotExist:
+            return Response({'message': 'User profile not found.'}, status=status.HTTP_404_NOT_FOUND)

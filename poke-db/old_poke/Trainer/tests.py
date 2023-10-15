@@ -366,6 +366,161 @@ class SignupViewTest(APITestCase):
         final_maxhealth = trainer_poke.max_health
         self.assertEqual(final_maxhealth - 75, initial_max_health) #Check bonus properly applied
 
+    def test_use_item_bonus_multiple_maxhealth(self):
+        flying = Pokemon.objects.create(name='pidgey',types='normal, flying', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg')
+        self.trainer.add_pokemon(flying)
+        trainer_poke = self.trainer.pokemon.get(name='pidgey')
+        initial_max_health = trainer_poke.max_health
+        #Testing fighting max_health Item (no bonus) qty 3
+
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        fighting_max_health = self.trainer.shop.items.get(name="Brawler's Brew")
+        before_purchase = self.trainer.money
+        store_qty_before = fighting_max_health.quantity
+        self.trainer.buy_item(fighting_max_health, 3)
+        after_purchase = self.trainer.money
+        store_qty_after = fighting_max_health.quantity
+        self.assertEqual(after_purchase + fighting_max_health.value * 3, before_purchase) #Check money properly deducted
+        self.assertEqual(store_qty_after, store_qty_before - 3) #Check store decrements quantity
+        trainer_item = self.trainer.items.get(name="Brawler's Brew")
+        self.assertEqual(trainer_item.quantity, 3) #Check trainer successfully has Item
+        self.trainer.use_item(trainer_item, trainer_poke, 3)
+        final_maxhealth = trainer_poke.max_health
+        self.assertEqual(final_maxhealth - 225, initial_max_health) #Check bonus properly applied
+
+        #Testing flying max_health Item (bonus) qty 2
+        initial_max_health = trainer_poke.max_health
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        self.trainer.make_money()
+        flying_max_health = self.trainer.shop.items.get(name='Aerial Draft Elixir')
+        before_purchase = self.trainer.money
+        store_qty_before = flying_max_health.quantity
+        self.trainer.buy_item(flying_max_health, 2)
+        after_purchase = self.trainer.money
+        store_qty_after = flying_max_health.quantity
+        self.assertEqual(after_purchase + flying_max_health.value * 2, before_purchase) #Check money properly deducted
+        self.assertEqual(store_qty_after, store_qty_before - 2) #Check store decrements quantity
+        trainer_item = self.trainer.items.get(name='Aerial Draft Elixir')
+        self.assertEqual(trainer_item.quantity, 2) #Check trainer successfully has Item
+        self.trainer.use_item(trainer_item, trainer_poke, 2)
+        final_maxhealth = trainer_poke.max_health
+        self.assertEqual(final_maxhealth - 300, initial_max_health) #Check bonus properly applied
+
+        #Testing normal max_health Item (bonus) qty 10
+        initial_max_health = trainer_poke.max_health
+        for _ in range(20):
+            self.trainer.make_money()
+        
+        normal_max_health = self.trainer.shop.items.get(name='Protein Shake')
+        before_purchase = self.trainer.money
+        store_qty_before = normal_max_health.quantity
+        self.trainer.buy_item(normal_max_health, 10)
+        after_purchase = self.trainer.money
+        store_qty_after = normal_max_health.quantity
+        self.assertEqual(after_purchase + normal_max_health.value * 10, before_purchase) #Check money properly deducted
+        self.assertEqual(store_qty_after, store_qty_before - 10) #Check store decrements quantity
+        trainer_item = self.trainer.items.get(name='Protein Shake')
+        self.assertEqual(trainer_item.quantity, 10) #Check trainer successfully has Item
+        self.trainer.use_item(trainer_item, trainer_poke, 10)
+        final_maxhealth = trainer_poke.max_health
+        self.assertEqual(final_maxhealth - 1500, initial_max_health) #Check bonus properly applied
+
+    def test_use_item_bonus_damage(self):
+        pokemon = Pokemon.objects.create(name='magnemite',types='electric, steel', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg')
+        self.trainer.add_pokemon(pokemon)
+        trainer_poke = self.trainer.pokemon.get(name='magnemite')
+        initial_power = trainer_poke.power
+        #Testing steel damage item (bonus)
+
+        for _ in range(10):
+            self.trainer.make_money()
+        steel_item = self.trainer.shop.items.get(name='Steel Surge')
+        money_before = self.trainer.money
+        store_qty_before = steel_item.quantity
+        self.trainer.buy_item(steel_item)
+        money_after = self.trainer.money
+        store_qty_after = steel_item.quantity
+
+        self.assertEqual(money_after + steel_item.value, money_before)
+        self.assertEqual(store_qty_after + 1, store_qty_before)
+
+        trainer_item = self.trainer.items.get(name='Steel Surge')
+        self.assertEqual(trainer_item.quantity, 1)
+
+        self.trainer.use_item(trainer_item, trainer_poke)
+        self.assertEqual(initial_power + 8, trainer_poke.power)
+        self.assertFalse(self.trainer.items.filter(name='Steel Surge').exists())
+        #psychic damage (no bonus)  qty 3 use 2
+        initial_power = trainer_poke.power
+        psychic_item = self.trainer.shop.items.get(name='Psionic Focus') #set item from shop
+        money_before = self.trainer.money 
+        store_qty_before = psychic_item.quantity #get qty of store item
+        self.trainer.buy_item(psychic_item, 3)
+        money_after = self.trainer.money
+        store_qty_after = psychic_item.quantity #get qty of store item after buy_item executed
+        self.assertEqual(money_after + psychic_item.value * 3, money_before) #check correct money amount
+        self.assertEqual(store_qty_after + 3, store_qty_before)  #check store item properly decrements
+        trainer_item = self.trainer.items.get(name='Psionic Focus') 
+        self.assertEqual(trainer_item.quantity, 3)
+        self.trainer.use_item(trainer_item, trainer_poke, 2)
+        self.assertEqual(trainer_poke.power, initial_power + 8) #Check no bonus applied
+        self.assertEqual(trainer_item.quantity, 1)
+
+        #electric (item bonus) qty 5 use 3
+        initial_power = trainer_poke.power
+        electric_item = self.trainer.shop.items.get(name='Voltage Amplifier')
+        money_before = self.trainer.money
+        shop_qty_before = electric_item.quantity
+        self.trainer.buy_item(electric_item, 5)
+        money_after = self.trainer.money
+        self.assertEqual(money_after + electric_item.value * 5, money_before)
+        shop_qty_after = electric_item.quantity
+        self.assertEqual(shop_qty_after + 5, shop_qty_before)
+        trainer_item = self.trainer.items.get(name='Voltage Amplifier')
+        self.assertEqual(trainer_item.quantity, 5)
+        self.trainer.use_item(trainer_item, trainer_poke, 3)
+        self.assertEqual(trainer_poke.power, initial_power + 24)
+        self.assertEqual(trainer_item.quantity, 2)
+
+    def test_use_item_defense(self):
+        
+        for _ in range(4):
+            self.trainer.make_money()
+        
+        # ice defense (bonus) default qty
+        pokemon = Pokemon.objects.create(name='articuno',types='ice, flying', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg')
+        self.trainer.add_pokemon(pokemon)
+        trainer_poke = self.trainer.pokemon.get(name='articuno')
+        initial_defense = trainer_poke.defense
+        shop_item = self.trainer.shop.items.get(name='Icicle Infusion')
+        self.trainer.buy_item(shop_item)
+        trainer_item = self.trainer.items.get(name='Icicle Infusion')
+        self.trainer.use_item(trainer_item, trainer_poke)
+        self.assertEqual(trainer_poke.defense, initial_defense + 6)
+        #rock defense (no bonus) qty 3
+        initial_defense = trainer_poke.defense
+        shop_item = self.trainer.shop.items.get(name='Granite Guard')
+        self.trainer.buy_item(shop_item, 3)
+        trainer_item = self.trainer.items.get(name='Granite Guard')
+        self.trainer.use_item(trainer_item, trainer_poke, 3)
+        self.assertEqual(trainer_poke.defense, initial_defense + 9)
+
+        #flying defense (bonus) qty 6
+        initial_defense = trainer_poke.defense
+        shop_item = self.trainer.shop.items.get(name='Feathered Gale Guard')
+        self.trainer.buy_item(shop_item, 6)
+        trainer_item = self.trainer.items.get(name='Feathered Gale Guard')
+        self.trainer.use_item(trainer_item, trainer_poke, 6)
+        self.assertEqual(trainer_poke.defense, initial_defense + 36)
+
+
     def test_add_pokemon(self):
         self.trainer.add_pokemon(self.pokemon)
         self.assertEqual(self.trainer.pokemon.count() - 1, self.initial_pokemon_count)
