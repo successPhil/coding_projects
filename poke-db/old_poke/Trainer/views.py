@@ -51,15 +51,23 @@ class SignupView(CreateAPIView):
             })
     
 class TrainerPokemonView(APIView):
-    def get(self, request):
+    def get(self, request, id=None):
         user = request.user
 
         try:
             trainer = Trainer.objects.get(user=user)  # Ensure trainer is retrieved correctly
-            all_pokemon = trainer.pokemon.all()  # Ensure the queryset is correct
-            
-            # Correct the serializer to use PokemonSerializer and add many=True
-            serializer = PokemonSerializer(all_pokemon, many=True)
+
+            if id is not None:
+                if isinstance(id, int):
+                    trainer_poke = trainer.pokemon.get(id=id)
+                elif isinstance(id, str):
+                    trainer_poke = trainer.pokemon.get(name=id)
+                else:
+                    raise ValueError("Invalid ID or name")
+                serializer = PokemonSerializer(trainer_poke)
+            else:
+                all_pokemon = trainer.pokemon.all()
+                serializer = PokemonSerializer(all_pokemon, many=True)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Trainer.DoesNotExist:
