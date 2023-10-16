@@ -171,10 +171,6 @@ class Trainer(models.Model):
         while level_diff > 0:
             levelXP = pokemon.totalXP - pokemon.experience
             pokemon.gain_experience(levelXP)
-            pokemon.increase_max_health(25)
-            pokemon.increase_health(25)
-            pokemon.increase_power(6)
-            pokemon.increase_defense(10)
             level_diff -= 1
         pokemon.save()
 
@@ -212,8 +208,8 @@ class Trainer(models.Model):
 
     def remove_pokemon(self, pokemon_id):
         try:
-            pokemon = self.pokemon.get(id=pokemon_id)
-            pokemon.delete()
+            pokemon_obj = self.pokemon.get(id=pokemon_id)
+            self.pokemon.remove(pokemon_obj)
             self.calculate_trainer_power()
             self.save()
             return True

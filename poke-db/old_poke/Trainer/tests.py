@@ -561,7 +561,6 @@ class SignupViewTest(APITestCase):
         self.trainer.first_pokemon()
        
         self.trainer.get_enemy_pokemon()
-        
         self.trainer.add_enemy_pokemon()
         self.assertEqual(self.trainer.pokemon.count(), 2)
         self.assertFalse(self.trainer.enemy_pokemon.exists())

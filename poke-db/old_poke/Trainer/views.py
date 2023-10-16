@@ -134,7 +134,7 @@ class BattleResultsView(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
             if battle_result == 'lose' and trainer_pokemon:
                 trainer.remove_pokemon(pokemon_id)
-                return Response({"message": "Trainer pokemon successfully deleted"}, status=status.HTTP_200_OK)
+                return Response({"message": "Trainer pokemon successfully removed from trainer"}, status=status.HTTP_200_OK)
             else:
                 return Response({"message": "Need a valid trainer pokemon id and enemy pokemon to get results"}, status=status.HTTP_400_BAD_REQUEST)
             
