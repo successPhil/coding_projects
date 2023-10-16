@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from Trainer.models import Trainer
 from Items.models import Item
 from pokemon.models import Pokemon
+from moves.models import Move
 
 from rest_framework.test import APITestCase
 
@@ -10,13 +11,13 @@ class SignupViewTest(APITestCase):
     def setUp(self):
         url = '/login/signup'  #url for signup view
         data = {
-            "username": "testuser",
+            "username": "testuser1",
             "password": "testpassword"
         }
         #use client to make post to url with data
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201) #check response of post
-        self.trainer = Trainer.objects.get(user__username='testuser') #store trainer for testing
+        self.trainer = Trainer.objects.get(user__username='testuser1') #store trainer for testing
         self.pokemon = Pokemon.objects.create(name='charmander',types='fire', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg')
         self.store_item = self.trainer.shop.items.get(name='Warm Home Cooked Meal') #Item from store
         self.default_item = self.trainer.shop.items.get(name='HP Potion') #Initial Trainer Item
@@ -27,6 +28,12 @@ class SignupViewTest(APITestCase):
         self.assertIsNotNone(self.default_item) #make sure default item exists
         self.initial_pokemon_count = self.trainer.pokemon.count() #initial pokemon count
         self.initial_enemy_count = self.trainer.enemy_pokemon.count() #initial enemy pokemon count
+        self.initial_trainer_power = self.trainer.trainer_power # initial trainer power
+        Move.objects.create(name='sucker punch', type='normal', damage=4 )
+        Move.objects.create(name='fire punch', type='fire', damage=4 )
+        Move.objects.create(name='ice punch', type='ice', damage=4 )
+        Move.objects.create(name='leaf punch', type='grass', damage=4 )
+        Move.objects.create(name='rock kick', type='normal', damage=4 )
 
     def test_signup_view(self):
         self.assertEqual(User.objects.count(), 1)
@@ -40,7 +47,7 @@ class SignupViewTest(APITestCase):
         self.assertEqual(self.trainer.items.count(), 1) #Initial items exist
 
     def test_make_money(self):
-        self.trainer.make_money()
+        self.trainer.make_money(1000)
         final_money = self.trainer.money
         self.assertEqual(final_money-self.initial_money, 1000)
 
@@ -182,8 +189,7 @@ class SignupViewTest(APITestCase):
         trainer_poke = self.trainer.pokemon.get(name='bulbasaur')
        
         trainer_poke.increase_max_health(7000)
-        self.trainer.make_money()
-        self.trainer.make_money()
+        self.trainer.make_money(6000)
         poison_health = self.trainer.shop.items.get(name='Venombane Elixir')
         before_purchase = self.trainer.money
         store_qty_before = poison_health.quantity
@@ -200,8 +206,6 @@ class SignupViewTest(APITestCase):
         self.assertEqual(final_health - 6000, initial_health)
 
         trainer_poke.decrease_health(6000)
-        self.trainer.make_money()
-        self.trainer.make_money()
         grass_health = self.trainer.shop.items.get(name='Photosynthesis Potion')
         before_purchase = self.trainer.money
         store_qty_before = grass_health.quantity
@@ -218,8 +222,6 @@ class SignupViewTest(APITestCase):
         self.assertEqual(final_health - 6000, initial_health)
 
         trainer_poke.decrease_health(6000)
-        self.trainer.make_money()
-        self.trainer.make_money()
         electric_health = self.trainer.shop.items.get(name='Electroshock Serum')
         before_purchase = self.trainer.money
         store_qty_before = electric_health.quantity
@@ -242,12 +244,7 @@ class SignupViewTest(APITestCase):
         trainer_poke = self.trainer.pokemon.get(name='gengar')
        
         trainer_poke.increase_max_health(20000)
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
+        self.trainer.make_money(20000)
         ghost_health = self.trainer.shop.items.get(name='Ghostly Haze')
         before_purchase = self.trainer.money
         store_qty_before = ghost_health.quantity
@@ -264,12 +261,6 @@ class SignupViewTest(APITestCase):
         self.assertEqual(final_health - 18000, initial_health)
 
         trainer_poke.decrease_health(18000)
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
         poison_health = self.trainer.shop.items.get(name='Venombane Elixir')
         before_purchase = self.trainer.money
         store_qty_before = poison_health.quantity
@@ -286,12 +277,6 @@ class SignupViewTest(APITestCase):
         self.assertEqual(final_health - 12000, initial_health)
 
         trainer_poke.decrease_health(12000)
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
         fairy_health = self.trainer.shop.items.get(name='Fae Essence Elixir')
         before_purchase = self.trainer.money
         store_qty_before = fairy_health.quantity
@@ -314,8 +299,7 @@ class SignupViewTest(APITestCase):
         initial_max_health = trainer_poke.max_health
         #Testing dragon max_health Item (bonus)
 
-        self.trainer.make_money()
-        self.trainer.make_money()
+        self.trainer.make_money(6000)
         dragon_max_health = self.trainer.shop.items.get(name='Dragonfire Elixir')
         before_purchase = self.trainer.money
         store_qty_before = dragon_max_health.quantity
@@ -332,8 +316,6 @@ class SignupViewTest(APITestCase):
 
         #Testing flying max_health Item (bonus)
         initial_max_health = trainer_poke.max_health
-        self.trainer.make_money()
-        self.trainer.make_money()
         flying_max_health = self.trainer.shop.items.get(name='Aerial Draft Elixir')
         before_purchase = self.trainer.money
         store_qty_before = flying_max_health.quantity
@@ -350,8 +332,6 @@ class SignupViewTest(APITestCase):
 
         #Testing rock max_health Item (no bonus)
         initial_max_health = trainer_poke.max_health
-        self.trainer.make_money()
-        self.trainer.make_money()
         rock_max_health = self.trainer.shop.items.get(name='Stoneshield Tonic')
         before_purchase = self.trainer.money
         store_qty_before = rock_max_health.quantity
@@ -373,12 +353,7 @@ class SignupViewTest(APITestCase):
         initial_max_health = trainer_poke.max_health
         #Testing fighting max_health Item (no bonus) qty 3
 
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
+        self.trainer.make_money(30000)
         fighting_max_health = self.trainer.shop.items.get(name="Brawler's Brew")
         before_purchase = self.trainer.money
         store_qty_before = fighting_max_health.quantity
@@ -395,10 +370,6 @@ class SignupViewTest(APITestCase):
 
         #Testing flying max_health Item (bonus) qty 2
         initial_max_health = trainer_poke.max_health
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
-        self.trainer.make_money()
         flying_max_health = self.trainer.shop.items.get(name='Aerial Draft Elixir')
         before_purchase = self.trainer.money
         store_qty_before = flying_max_health.quantity
@@ -415,9 +386,6 @@ class SignupViewTest(APITestCase):
 
         #Testing normal max_health Item (bonus) qty 10
         initial_max_health = trainer_poke.max_health
-        for _ in range(20):
-            self.trainer.make_money()
-        
         normal_max_health = self.trainer.shop.items.get(name='Protein Shake')
         before_purchase = self.trainer.money
         store_qty_before = normal_max_health.quantity
@@ -437,10 +405,10 @@ class SignupViewTest(APITestCase):
         self.trainer.add_pokemon(pokemon)
         trainer_poke = self.trainer.pokemon.get(name='magnemite')
         initial_power = trainer_poke.power
+        self.trainer.make_money(10000)
         #Testing steel damage item (bonus)
 
-        for _ in range(10):
-            self.trainer.make_money()
+        
         steel_item = self.trainer.shop.items.get(name='Steel Surge')
         money_before = self.trainer.money
         store_qty_before = steel_item.quantity
@@ -491,8 +459,7 @@ class SignupViewTest(APITestCase):
 
     def test_use_item_defense(self):
         
-        for _ in range(4):
-            self.trainer.make_money()
+        self.trainer.make_money(4000)
         
         # ice defense (bonus) default qty
         pokemon = Pokemon.objects.create(name='articuno',types='ice, flying', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg')
@@ -548,15 +515,15 @@ class SignupViewTest(APITestCase):
         self.assertEqual(self.trainer.pokemon.count() -3, self.initial_pokemon_count)
 
         pokemon = self.trainer.pokemon.get(name='bulbasaur')
-        self.trainer.remove_pokemon(pokemon)
+        self.trainer.remove_pokemon(pokemon.id)
         self.assertEqual(self.trainer.pokemon.count() - 2, self.initial_pokemon_count)
 
         pokemon = self.trainer.pokemon.get(name='squirtle')
-        self.trainer.remove_pokemon(pokemon)
+        self.trainer.remove_pokemon(pokemon.id)
         self.assertEqual(self.trainer.pokemon.count() - 1, self.initial_pokemon_count)
 
         pokemon = self.trainer.pokemon.get(name='charmander')
-        self.trainer.remove_pokemon(pokemon)
+        self.trainer.remove_pokemon(pokemon.id)
         self.assertEqual(self.trainer.pokemon.count(), self.initial_pokemon_count)
 
     def test_first_pokemon(self):
@@ -566,6 +533,90 @@ class SignupViewTest(APITestCase):
     def test_enemy_pokemon(self):
         self.trainer.get_enemy_pokemon()
         self.assertEqual(self.trainer.enemy_pokemon.count() - 1, self.initial_enemy_count)
+
+    def test_calculate_trainer_power(self):
+        self.trainer.first_pokemon()
+        self.trainer.calculate_trainer_power()
+        self.assertEqual(self.trainer.trainer_power, 3)
+        pokemon = Pokemon.objects.create(name='gengar',types='ghost, poison', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg', level=33)
+        self.trainer.add_pokemon(pokemon)
+        self.trainer.calculate_trainer_power()
+        self.assertGreater(self.trainer.trainer_power, 3)
+
+        pokemon = Pokemon.objects.create(name='charizard',types='fire', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg', level=45)
+        self.trainer.add_pokemon(pokemon)
+        self.trainer.calculate_trainer_power()
+        self.assertGreater(self.trainer.trainer_power, 18)
+
+        pokemon = Pokemon.objects.create(name='squirtle',types='water', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg', level=10)
+        self.trainer.add_pokemon(pokemon)
+        self.trainer.calculate_trainer_power()
+        self.assertLess(self.trainer.trainer_power, 27)
+
+    def test_add_enemy_pokemon(self):
+        Pokemon.objects.create(name='gengar',types='ghost, poison', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg', level=30)
+        Pokemon.objects.create(name='articuno',types='ice, flying', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg', level=50)
+        Pokemon.objects.create(name='squirtle',types='water', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg', level=13)
+        Pokemon.objects.create(name='bulbasaur',types='grass, poison', front_image_url='something.jpeg', back_image_url='somethingelse.jpeg', level=7)
+        self.trainer.first_pokemon()
+       
+        self.trainer.get_enemy_pokemon()
+        
+        self.trainer.add_enemy_pokemon()
+        self.assertEqual(self.trainer.pokemon.count(), 2)
+        self.assertFalse(self.trainer.enemy_pokemon.exists())
+
+        self.trainer.get_enemy_pokemon()
+        self.assertEqual(self.trainer.enemy_pokemon.count(), 1)
+        self.trainer.add_enemy_pokemon()
+        self.assertEqual(self.trainer.pokemon.count(), 3)
+        self.assertFalse(self.trainer.enemy_pokemon.exists())
+
+        self.trainer.get_enemy_pokemon()
+        self.assertEqual(self.trainer.enemy_pokemon.count(), 1)
+        self.trainer.add_enemy_pokemon()
+        self.assertEqual(self.trainer.pokemon.count(), 4)
+        self.assertFalse(self.trainer.enemy_pokemon.exists())
+
+    def test_duplicate_enemy_pokemon(self):
+        self.trainer.first_pokemon()
+        self.trainer.get_enemy_pokemon()
+        
+        trainer_poke = self.trainer.pokemon.first()
+        enemy_poke = self.trainer.enemy_pokemon.first()
+        self.assertGreater(len(enemy_poke.moves.all()), 0)
+
+        self.assertEqual(trainer_poke.name, enemy_poke.name) #Check same pokemon name
+        self.assertNotEqual(trainer_poke.id, enemy_poke.id) #Check id's are differrent
+
+        self.trainer.add_enemy_pokemon()
+        self.assertEqual(self.trainer.pokemon.count(), 2) #Check that pokemon was added
+        self.assertFalse(self.trainer.enemy_pokemon.exists()) #Check enemy properly removed
+
+        self.trainer.get_enemy_pokemon()
+        self.trainer.add_enemy_pokemon()
+        self.assertEqual(self.trainer.pokemon.count(), 3) #Check count continues to add properly
+        self.assertFalse(self.trainer.enemy_pokemon.exists()) #Check remove clears enemy pokemon
+
+        for _ in range(20):
+            self.trainer.get_enemy_pokemon()
+            self.trainer.add_enemy_pokemon()
+        final_trainer_power = self.trainer.trainer_power
+        self.assertGreater(final_trainer_power, self.initial_trainer_power)
+        self.assertEqual(self.trainer.pokemon.count(), 23)
+        final_trainer_power = self.trainer.trainer_power
+       
+        # all_trainer_pokes = self.trainer.pokemon.all()
+        # for pokemon in all_trainer_pokes:
+        #     print(pokemon.name, pokemon.level, pokemon.experience, pokemon.totalXP, pokemon.id)
+        #     print(pokemon.health, pokemon.max_health, pokemon.power, pokemon.defense)
+        #     print(pokemon.moves.all())
+
+        
+
+
+        
+
 
 
 

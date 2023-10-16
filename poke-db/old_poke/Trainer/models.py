@@ -4,12 +4,13 @@ from pokemon.models import Pokemon
 from Items.models import Item
 from Shop.models import Shop
 from Shop.views import create_initial_shop
+from moves.models import Move
 import random
 
 class Trainer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     money = models.IntegerField(default=500)
-    trainer_power = models.IntegerField(default=15)
+    trainer_power = models.IntegerField(default=3)
     pokemon = models.ManyToManyField(Pokemon, related_name='trainer_pokemon', blank=True, default=None)
     items = models.ManyToManyField(Item, related_name='trainers_items', default=None, blank=True)
     shop = models.OneToOneField(Shop, on_delete=models.CASCADE, default=None, null=True)
@@ -22,8 +23,19 @@ class Trainer(models.Model):
             self.shop = initial_shop
             self.save()
 
-    def make_money(self):
-        self.money += 1000
+    def make_money(self, amount):
+        self.money += amount
+
+    def calculate_trainer_power(self):
+        total_levels = 0
+        total_pokemon = self.pokemon.count()
+
+        if total_pokemon > 0:
+            for pokemon in self.pokemon.all():
+                total_levels += pokemon.level
+            average_level = total_levels / total_pokemon
+            self.trainer_power = int(average_level)
+            self.save()
     
     def list_items(self):
         items = self.items.all()
@@ -123,21 +135,90 @@ class Trainer(models.Model):
 
     def add_pokemon(self, pokemon):
         self.pokemon.add(pokemon)
+        self.save()
     
-    def remove_pokemon(self, pokemon):
-        self.pokemon.remove(pokemon)
-
     def first_pokemon(self):
         if not self.pokemon.exists():
             all_pokemon = Pokemon.objects.all()
             pokemon_choice = random.choice(all_pokemon)
             self.add_pokemon(pokemon_choice)
+            self.save()
+
+    def handle_duplicate_pokemon(self, original_pokemon):
+        new_enemy_pokemon = Pokemon(
+            name=original_pokemon.name,
+            types=original_pokemon.types,
+            front_image_url=original_pokemon.front_image_url,
+            back_image_url=original_pokemon.back_image_url,
+            health=original_pokemon.health,
+            max_health=original_pokemon.max_health,
+            power=original_pokemon.power,
+            defense=original_pokemon.defense,
+            experience=original_pokemon.experience,
+            totalXP=original_pokemon.totalXP,
+            level=original_pokemon.level
+        )
+        new_enemy_pokemon.save()
+
+        all_moves = Move.objects.all()
+        random_moves = random.sample(list(all_moves), 4)
+        new_enemy_pokemon.moves.set(random_moves)
+        new_enemy_pokemon.save()
+
+        return new_enemy_pokemon
+    
+    def level_up_enemy(self, pokemon, level_diff):
+        while level_diff > 0:
+            levelXP = pokemon.totalXP - pokemon.experience
+            pokemon.gain_experience(levelXP)
+            pokemon.increase_max_health(25)
+            pokemon.increase_health(25)
+            pokemon.increase_power(6)
+            pokemon.increase_defense(10)
+            level_diff -= 1
+        pokemon.save()
+
     
     def get_enemy_pokemon(self):
         if not self.enemy_pokemon.exists():
+            trainer_power = self.trainer_power
+            min_level = max(3, trainer_power-3)
+            new_level = random.randint(min_level, trainer_power + 3)
             all_pokemon = Pokemon.objects.all()
             pokemon_choice = random.choice(all_pokemon)
-            self.enemy_pokemon.add(pokemon_choice)
+            level_difference = new_level - pokemon_choice.level
+
+
+            if self.pokemon.filter(id=pokemon_choice.id).exists():
+                new_enemy_pokemon = self.handle_duplicate_pokemon(pokemon_choice)
+                level_difference = new_level - new_enemy_pokemon.level
+                self.level_up_enemy(new_enemy_pokemon, level_difference)
+                new_enemy_pokemon.save()
+                self.enemy_pokemon.add(new_enemy_pokemon)
+            else:
+                self.level_up_enemy(pokemon_choice, level_difference)
+                pokemon_choice.save()
+                self.enemy_pokemon.add(pokemon_choice)
+            
+            self.save()
+
+    def add_enemy_pokemon(self):
+        if self.enemy_pokemon.exists():
+            enemy_pokemon = self.enemy_pokemon.first()
+            self.add_pokemon(enemy_pokemon)
+            self.enemy_pokemon.clear()
+            self.calculate_trainer_power()
+            self.save()
+
+    def remove_pokemon(self, pokemon_id):
+        try:
+            pokemon = self.pokemon.get(id=pokemon_id)
+            pokemon.delete()
+            self.calculate_trainer_power()
+            self.save()
+            return True
+        except Pokemon.DoesNotExist:
+            return False
                     
 
 

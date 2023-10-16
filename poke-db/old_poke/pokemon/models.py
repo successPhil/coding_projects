@@ -33,9 +33,11 @@ class Pokemon(models.Model):
 
     def increase_max_health(self, amount):
         self.max_health += amount
+        self.save()
 
     def increase_power(self, amount):
         self.power += amount
+        self.save()
 
     def increase_defense(self, amount):
         self.defense += amount
@@ -44,15 +46,17 @@ class Pokemon(models.Model):
         additional_XP = int((self.totalXP/20) + self.level ** 1.3)
         self.level += 1
         self.totalXP+= additional_XP
+        self.increase_max_health(25)
+        self.increase_health(25)
+        self.increase_power(6)
+        self.increase_defense(10)
         self.save()
 
     def gain_experience(self, experience):
         self.experience += experience
-
         # Check if the Pokémon has gained enough experience to level up
         while self.experience >= self.totalXP:
             self.experience -= self.totalXP  # Deduct totalXP for leveling up
             self.level_up()
-
         # Save any remaining experience
         self.save()
