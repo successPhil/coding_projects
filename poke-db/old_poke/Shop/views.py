@@ -1,5 +1,6 @@
 from Shop.models import Shop
 from Items.models import Item
+
 import json
 
 def create_initial_shop():
@@ -22,3 +23,6 @@ def create_initial_shop():
         shop.items.add(item)
 
     return shop
+
+
+        

@@ -45,11 +45,14 @@ class Pokemon(models.Model):
     def level_up(self):
         additional_XP = int((self.totalXP/20) + self.level ** 1.3)
         self.level += 1
+        additional_health = int(self.level ** 1.3)
+        additional_stats = int(self.level/2)
+        
         self.totalXP+= additional_XP
-        self.increase_max_health(25)
-        self.increase_health(25)
-        self.increase_power(6)
-        self.increase_defense(10)
+        self.increase_max_health(25 + additional_health)
+        self.increase_health(25 + additional_health)
+        self.increase_power(4 + additional_stats)
+        self.increase_defense(6 + additional_stats)
         self.save()
 
     def gain_experience(self, experience):

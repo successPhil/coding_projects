@@ -9,6 +9,7 @@ from Trainer.models import Trainer
 from Items.models import Item
 from pokemon.models import Pokemon
 from Shop.views import create_initial_shop
+from Items.serializers import ItemSerializer
 from pokemon.serializers import PokemonSerializer
 
 # handles request and parses body for username and password
@@ -46,7 +47,7 @@ class SignupView(CreateAPIView):
             return Response({
                 'user_id': user.id,
                 'trainer': trainer_serializer.data,
-            })
+            }, status=status.HTTP_200_OK)
 
 
 class FirstPokemonView(APIView):
@@ -107,7 +108,7 @@ class TrainerPokemonView(APIView):
 
 
 class BattleResultsView(APIView):    
-    def post(self, request):
+    def put(self, request):
         user = request.user
         try:
             trainer = Trainer.objects.get(user=user)  # Ensure trainer is retrieved correctly
@@ -118,6 +119,8 @@ class BattleResultsView(APIView):
             current_health = trainer_data['current_health']
             experience = trainer_data['experience']
             battle_result = trainer_data['battle_result']
+            money = trainer_data['money']
+
             try:
                 trainer_pokemon = trainer.pokemon.get(id=pokemon_id) #Ensure id is associated with trainer
             except Pokemon.DoesNotExist:
@@ -126,7 +129,7 @@ class BattleResultsView(APIView):
             if trainer.enemy_pokemon.exists() and trainer_pokemon:
               if battle_result == 'win':
                 trainer.add_enemy_pokemon()
-                
+                trainer.make_money(money)                
                 trainer_pokemon.health = current_health
                 trainer_pokemon.gain_experience(experience)
                 trainer.save()
@@ -140,4 +143,67 @@ class BattleResultsView(APIView):
             
         except Trainer.DoesNotExist:
             return Response({'message': 'User profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class ShopView(APIView):
+    def get(self, request):
+        user = request.user
+        try:
+            trainer = Trainer.objects.get(user=user)
+            shop = trainer.shop.items.all()
+            serializer = ItemSerializer(shop, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Trainer.DoesNotExist:
+            return Response({"message": "User profile does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        
+    def put(self, request):
+        user = request.user
+        try:
+            trainer = Trainer.objects.get(user=user)
+            transaction = request.data.get('transaction')
+            item_id = transaction['item_id']
+            item_qty = transaction['item_qty']
+            action = transaction['action']
+
+            if action == 'sell':
+                try:
+                    item = trainer.items.get(id=item_id)
+                    if item_qty > item.quantity:
+                        return Response({"message": "Invalid quantity received"})
+                    trainer.sell_item(item, item_qty)
+                    if item.quantity == 0:
+                        return Response({"message": "Item qty reached 0 and has been removed"}, status=status.HTTP_200_OK)
+                    updated = trainer.items.get(id=item_id)
+                    serializer = ItemSerializer(updated)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                except Item.DoesNotExist:
+                    return Response({"message": "Item ID is not valid or Item quantity reached 0"}, status=status.HTTP_404_NOT_FOUND)
+            
+            if action == 'buy':
+                try:
+                    item = trainer.shop.items.get(id=item_id)
+                    name = item.name
+                    if item_qty > item.quantity:
+                        return Response({"message": "Invalid quantity received"}, status=status.HTTP_400_BAD_REQUEST)
+                    trainer.buy_item(item, item_qty)
+                    updated = trainer.items.get(name=name)
+                    serializer = ItemSerializer(updated)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                except Item.DoesNotExist:
+                    return Response({"message": "Item ID is not valid"}, status=status.HTTP_404_NOT_FOUND)
+            
+        except Trainer.DoesNotExist:
+            return Response({"message": "User profile does not exist"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class TrainerItems(APIView):
+    def get(self, request):
+        user = request.user
+        try:
+            trainer = Trainer.objects.get(user=user)
+            trainer_items = trainer.items.all()
+            serializer = ItemSerializer(trainer_items, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Trainer.DoesNotExist:
+            return Response({"message": "User profile does not exist"}, status=status.HTTP_404_NOT_FOUND)
 

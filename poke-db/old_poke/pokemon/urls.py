@@ -1,9 +1,9 @@
 from django.urls import path
 
-from . import views
+from pokemon.views import PokemonAPIView
 
 urlpatterns = [
 
-path('pokemon/', views.PokemonAPIView.as_view(), name='pokemon-list'),
+path('pokemon/', PokemonAPIView.as_view(), name='pokemon-list'),
 
 ]

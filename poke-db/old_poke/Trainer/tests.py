@@ -1,7 +1,5 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
 from Trainer.models import Trainer
-from Items.models import Item
 from pokemon.models import Pokemon
 from moves.models import Move
 

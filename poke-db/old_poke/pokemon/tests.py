@@ -7,8 +7,8 @@ class test_pokemon(APITestCase):
     def setUp(self):
         url = '/login/signup'  #url for signup view
         data = {
-            "username": "testuser",
-            "password": "testpassword"
+            "username": "testuser3",
+            "password": "testpassword3"
         }
         #use client to make post to url with data
         response = self.client.post(url, data, format='json')
