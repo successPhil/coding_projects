@@ -1,0 +1,122 @@
+@font-face {
+    font-family: 'Pokemon GB';
+    src: url('./fonts/pokemon.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+@font-face {
+    font-family: 'Pokemon Solid';
+    src: url('./fonts/Pokemon Solid.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Essentiarum';
+    src: url('./fonts/Essentiarum Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Baloo 2';
+    src: url('./fonts/Baloo2-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.pokemon-type-icon {
+    font-family: 'Essentiarum', sans-serif; /* Use the custom font */
+    font-size: 40px; /* Set the desired font size */
+}
+
+.app-text {
+    font-family: 'Baloo 2', sans-serif; 
+    color: #cacfcd
+}
+
+
+.grass {
+    color: #4caf50; /* Green */
+  }
+  
+.fire {
+    color: #ff5722; /* Red */
+  }
+  
+.water {
+    color: #2196f3; /* Blue */
+  }
+
+.electric {
+    color: #ffeb3b; /* Yellow */
+  }
+  
+.psychic {
+    color: #e91e63; /* Pink */
+  }
+  
+.dark {
+    color: #424242; /* Dark Gray */
+  }
+.fighting {
+    color: #ff5722; /* Deep Orange */
+  }
+.steel {
+    color: #607d8b; /* Steel Gray */
+  }
+  
+.dragon {
+    color: #673ab7; /* Purple */
+  }
+  
+.fairy {
+    color: #ff4081; /* Light Pink */
+  }
+  
+.normal {
+    color: #9e9e9e; /* Light Gray */
+  }
+  
+.flying {
+    color: #03a9f4; /* Sky Blue */
+  }
+  
+.poison {
+    color: #9c27b0; /* Dark Purple */
+  }
+  
+.ground {
+    color: #795548; /* Brown */
+  }
+  
+.rock {
+    color: #8bc34a; /* Light Green */
+  }
+  
+.bug {
+    color: #4caf50; /* Green */
+  }
+  
+.ghost {
+    color: #607d8b; /* Steel Gray */
+  }
+  
+.ice {
+    color: #03a9f4; /* Sky Blue */
+  }
+
+
+#logout {
+    margin-left: auto;
+    height:38px;
+  }
+
+
+#logo-app-bar {
+    margin-right: auto;
+    width: 420;
+    height: auto;
+  }
+
