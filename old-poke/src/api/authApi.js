@@ -30,11 +30,16 @@ export async function loginAxios(context) {
   }
 }
 
-export async function getTrainerPokemon() {
+export async function getTrainerPokemon(id=null) {
+  let url = `${API_BASE_URL}/trainer/pokemon`
+
+  if (id != null){
+    url += `/${id}`
+  }
   
   
   try {
-    const response = await axios.get(`${API_BASE_URL}/trainer/pokemon`, {
+    const response = await axios.get(url, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${localStorage.getItem("token")}`,

@@ -14,6 +14,7 @@ function App() {
   const [checked, setChecked] = useState(false)
   const [signUp, setSignUp ] = useState(false)
   const [trainerPokemon, setTrainerPokemon] = useState([]);
+  const [selectPokemon, setSelectPokemon ] = useState([])
   const [trainerItems, setTrainerItems] = useState([]);
   const [trainerStore, setTrainerStore] = useState([]);
 
@@ -24,6 +25,49 @@ function App() {
       setUserToken(token)
     }
   }, [])
+
+  const typeToClassname = {
+    grass: 'grass',
+    fire: 'fire',
+    water: 'water',
+    electric: 'electric',
+    psychic: 'psychic',
+    dark: 'dark',
+    steel: 'steel',
+    dragon: 'dragon',
+    fairy: 'fairy',
+    normal: 'normal',
+    flying: 'flying',
+    poison: 'poison',
+    ground: 'ground',
+    rock: 'rock',
+    bug: 'bug',
+    ghost: 'ghost',
+    ice: 'ice',
+    fighting: 'fighting'
+  };
+
+  // Type to icon map
+  const typeToIcon = {
+    grass: 'g',
+    fire: 'r',
+    water: 'w',
+    electric: 'l',
+    psychic: 'p',
+    dark: 'd',
+    steel: 'm',
+    dragon: 'n',
+    fairy: 'y',
+    normal: 'c',
+    flying: 'v',
+    poison: 'o',
+    ground: 'a',
+    rock: 'k',
+    bug: 'b',
+    ghost: 'h',
+    ice: 'i',
+    fighting: 'f'
+  };
 
   
 
@@ -65,7 +109,7 @@ function App() {
 
   return (
     <>
-    <TrainerContext.Provider value={{userToken, trainerPokemon, setTrainerPokemon}}>
+    <TrainerContext.Provider value={{userToken, trainerPokemon, setTrainerPokemon, typeToClassname, typeToIcon , selectPokemon, setSelectPokemon}}>
       <Router>
       <ResponsiveAppBar handleLogout={handleLogout} />
         <Routes>

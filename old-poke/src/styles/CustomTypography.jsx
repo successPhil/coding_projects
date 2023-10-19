@@ -7,6 +7,7 @@ const Baloo = styled(Typography)`
   font-size: 2rem; /* Adjust the font size as needed */
 `;
 
+
 export const GameText = styled(Typography)`
   font-family: 'Pokemon GB', sans-serif;
   color: #cacfcd;

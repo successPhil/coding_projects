@@ -36,6 +36,22 @@
     color: #cacfcd
 }
 
+#custom-popover {
+  background-color: #cacfcd;  /* Change to the desired color */
+  border-radius: 15px;     /* Adjust the border radius */
+  /* Add other custom styles as needed */
+}
+
+
+#centered-container {
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+.icon-background {
+  color: #DDDBCB
+}
+
 
 .grass {
     color: #4caf50; /* Green */
@@ -114,9 +130,4 @@
   }
 
 
-#logo-app-bar {
-    margin-right: auto;
-    width: 420;
-    height: auto;
-  }
 

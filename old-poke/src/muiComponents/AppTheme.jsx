@@ -9,15 +9,17 @@ import { createTheme } from '@mui/material/styles';
 const AppTheme = createTheme({
   palette: {
     primary: {
-      main: '#2f1a4a', // Pokémon Logo Yellow
+      main: '#2f1a4a', // Dark purple
     },
     secondary: {
       main: '#8d86c9', // Pokémon Logo Light Blue
     },
     background: {
       default: '#23282D', // White background for contrast
+      paper: '#8d86c9',
       secondary: '#ececec', // A light gray background for other elements
     },
+    
   },
   
 });

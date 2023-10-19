@@ -13,7 +13,6 @@ export default function Login({handleInputChange, handleToken, handleOnClick, ch
                 password: data.get('password'),
               }
               signupAxios(context)
-              console.log(checked, "from Login")
               handleOnClick(checked)
         } else {
             const data = new FormData(event.currentTarget);

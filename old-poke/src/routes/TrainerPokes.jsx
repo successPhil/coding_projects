@@ -2,6 +2,8 @@ import { useEffect, useContext } from 'react';
 import TrainerContext from '../contexts/TrainerContext';
 import { getTrainerPokemon } from '../api/authApi';
 import PokeCard from '../muiComponents/PokeCard';
+import Grid from '@mui/material/Grid';
+import Container from '@mui/material/Container'
 
 export default function TrainerPokes(){
 
@@ -22,13 +24,23 @@ export default function TrainerPokes(){
     fetchTrainerPokemon()
 }, []);
 
-  console.log(trainerPokemon, 'THIS IS STATE MOTHER FUCKER')
+
     return (
         <>
         {trainerPokemon ? (
-      trainerPokemon.map(pokemon => (
-        <PokeCard key={pokemon.id} pokemon={pokemon} />))) : (<p>Loading...</p>)}
-        <h1 className="pokemon-type-icon psychic">wrfwrflwrfl</h1>
-        </>
-    )
+        <Container id='centered-container'>
+        <Grid container spacing={2}>
+          {trainerPokemon.map(pokemon => (
+            <Grid item xs={3} key={pokemon.id}>
+              <PokeCard pokemon={pokemon} />
+            </Grid>   
+          ))}
+        </Grid>
+        </Container>
+     
+      ) : (
+        <p>Loading...</p>
+      )}
+    </>
+  )
 }

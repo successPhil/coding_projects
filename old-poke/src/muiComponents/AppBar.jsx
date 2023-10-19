@@ -6,7 +6,7 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
 import logo from '../images/PokemonKo4.png'
-import Baloo from './CustomTypography';
+import Baloo from '../styles/CustomTypography';
 
 
 const menuItems = [
