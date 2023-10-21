@@ -17,11 +17,9 @@ const AppTheme = createTheme({
     background: {
       default: '#23282D', // White background for contrast
       paper: '#8d86c9',
-      secondary: '#ececec', // A light gray background for other elements
+      secondary: '#ffffff', // A light gray background for other elements
     },
-    
   },
-  
 });
 
 export default AppTheme;

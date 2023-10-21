@@ -18,10 +18,12 @@ import { getTrainerPokemon } from '../api/authApi';
 
 
 export default function PokeCard({pokemon}) {
-  const { setSelectPokemon, typeToClassname, typeToIcon} = useContext(TrainerContext)
+  const { selectPokemon, setSelectPokemon, typeToClassname, typeToIcon} = useContext(TrainerContext)
   const typeClassName = typeToClassname[pokemon.types];
   const icon = typeToIcon[pokemon.types];
   const iconClassName = 'pokemon-type-icon'
+
+  console.log(selectPokemon)
 
   const handleTrainerSelect = async () => {
     const battlePoke = await getTrainerPokemon(pokemon.id)
@@ -29,7 +31,7 @@ export default function PokeCard({pokemon}) {
   }
    
     return (   
-      <Paper elevation={3} sx={{mt: 10, maxWidth: 420 , height: 525, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, borderTopLeftRadius:15, borderTopRightRadius:15}}>
+      <Paper elevation={3} sx={{mt: 10, maxWidth: 420 , height: 555, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, borderTopLeftRadius:15, borderTopRightRadius:15}}>
         <CardMedia
           component="img"
           height="275"
@@ -61,7 +63,7 @@ export default function PokeCard({pokemon}) {
           </Grid>
           </Grid>
         </CardContent>
-        <CardActions sx={{mt: 7, mr: 1}}>
+        <CardActions sx={{mt: 9, mr: 1}}>
         <Grid container justifyContent="space-between" sx={{ p: 3 }}>
   <Grid item xs={3}>
     <PopoverPopupState  moves={pokemon.moves} />

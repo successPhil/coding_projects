@@ -14,7 +14,6 @@ export default function MovesCard({move}) {
     const icon = typeToIcon[move.type];
     const iconClassName = 'pokemon-type-icon'
 
-
     return (
       
       <Paper elevation={3} sx={{mt: 2, maxWidth: 500 ,width: 275,  height: 145, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, borderTopLeftRadius:15, borderTopRightRadius:15, backgroundColor:'#2f1a4a'}}>

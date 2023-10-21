@@ -5,7 +5,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
-import logo from '../images/PokemonKo4.png'
+import logo from '../images/PokemonKoNew.png'
 import Baloo from '../styles/CustomTypography';
 
 

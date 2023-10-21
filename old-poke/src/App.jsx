@@ -7,6 +7,7 @@ import Shop from "./routes/Shop"
 import Items from "./routes/Items"
 import TrainerContext from "./contexts/TrainerContext"
 import { useState, useEffect } from "react"
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 function App() {
   const [formData, setFormData] = useState({ username: '', password: '' });
@@ -14,7 +15,9 @@ function App() {
   const [checked, setChecked] = useState(false)
   const [signUp, setSignUp ] = useState(false)
   const [trainerPokemon, setTrainerPokemon] = useState([]);
-  const [selectPokemon, setSelectPokemon ] = useState([])
+  const [selectPokemon, setSelectPokemon ] = useState(null)
+  const [ enemyPokemon, setEnemyPokemon ] = useState(null)
+  const [ moveInfo, setMoveInfo ] = useState("")
   const [trainerItems, setTrainerItems] = useState([]);
   const [trainerStore, setTrainerStore] = useState([]);
 
@@ -70,7 +73,6 @@ function App() {
   };
 
   
-
   const handleToken = (token) => {
     setFormData({ username: '', password: '' })
     localStorage.setItem("token", token)
@@ -109,13 +111,13 @@ function App() {
 
   return (
     <>
-    <TrainerContext.Provider value={{userToken, trainerPokemon, setTrainerPokemon, typeToClassname, typeToIcon , selectPokemon, setSelectPokemon}}>
+    <TrainerContext.Provider value={{userToken, trainerPokemon, setTrainerPokemon, typeToClassname, typeToIcon , selectPokemon, setSelectPokemon, enemyPokemon, setEnemyPokemon, moveInfo, setMoveInfo}}>
       <Router>
       <ResponsiveAppBar handleLogout={handleLogout} />
         <Routes>
           <Route path="/" element={<Login checked={checked} handleOnClick={handleOnClick} handleInputChange={handleInputChange} formData={formData} handleToken={handleToken} token={userToken} signUp={signUp} handleSignUp={handleSignUp}/>} />
           <Route path="pokemon" element={<TrainerPokes />} />
-          <Route path="battle" element={<Trainer />} />
+          <Route path="battle" element={<Trainer /> } /> 
           <Route path="shop" element={<Shop />} />
           <Route path="items" element={<Items />} />
         </Routes>

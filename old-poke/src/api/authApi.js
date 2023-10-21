@@ -36,8 +36,6 @@ export async function getTrainerPokemon(id=null) {
   if (id != null){
     url += `/${id}`
   }
-  
-  
   try {
     const response = await axios.get(url, {
       headers: {
@@ -49,6 +47,24 @@ export async function getTrainerPokemon(id=null) {
     return response.data;
   } catch (error) {
     console.error('Error in getTrainerPokemon:', error);
+    throw error;
+  }
+}
+
+export async function getEnemyPokemon(){
+  try {
+    let url = `${API_BASE_URL}/trainer/enemy-poke`
+    const response = await axios.get(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem("token")}`
+      },
+    })
+
+    return response.data
+  }
+  catch (error) {
+    console.error('Error in getEnemyPokemon:', error)
     throw error;
   }
 }
