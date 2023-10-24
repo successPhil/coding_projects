@@ -1,28 +1,33 @@
 import GameText from "../styles/PokemonGB"
 import ProgressBar from "./ProgressBar"
 import PlayerBar from "./PlayerBar"
+import TrainerContext from "../contexts/TrainerContext"
+import { useContext } from "react"
+import EnemyImage from "./EnemyImage"
 
 export function capitalizeFirst(name){
     return name[0].toUpperCase() + name.slice(1)
 
 }
 
-export default function EnemyData({enemyHealth, enemyMaxHealth, enemyName, enemyLevel}) {
-    const upperEnemyName = capitalizeFirst(enemyName)
-    return (
-    <>
-    <PlayerBar /> 
-    <div className="enemy-name">
-        <GameText>{upperEnemyName}</GameText>
-    </div>
-    <div className="enemy-level">
-        <GameText>LVL:{enemyLevel}</GameText>
-    </div>
-    <div className="enemy-health-bar">
-    <GameText>HP:</GameText>
-    <ProgressBar value={enemyHealth} maxValue={enemyMaxHealth} barColor={'#DA2C38'} />
-    </div>
-    </>)
-    
-}
+export default function EnemyData() {
+    const { enemyPokemon } = useContext(TrainerContext)
 
+    if (enemyPokemon){
+        return (<>
+        <EnemyImage enemyImage={enemyPokemon.front_image_url}/>
+        
+        <PlayerBar /> 
+        <div className="enemy-name">
+            <GameText>{capitalizeFirst(enemyPokemon.name)}</GameText>
+        </div>
+        <div className="enemy-level">
+            <GameText>LVL:{enemyPokemon.level}</GameText>
+        </div>
+        <div className="enemy-health-bar">
+        <GameText>HP:</GameText>
+        <ProgressBar value={enemyPokemon.health} maxValue={enemyPokemon.max_health} barColor={'#DA2C38'} />
+        </div>
+        </> )
+    }
+    }

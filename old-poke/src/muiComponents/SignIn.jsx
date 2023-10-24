@@ -25,8 +25,8 @@ export default function SignIn({checked, handleInputChange, handleOnClick, handl
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h3" color="#ffc107">
-            Sign in
+          <Typography component="h1" variant="h3" color="#cacfcd;">
+            <span id="sign-in">Sign in</span>
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
@@ -41,11 +41,11 @@ export default function SignIn({checked, handleInputChange, handleOnClick, handl
               onChange={handleInputChange}
               color="secondary"
               InputLabelProps={{
-                style: { color: '#ffc107'},
+                style: { color: '#cacfcd', fontFamily:'Baloo 2'},
                 shrink: true, 
               }}
               InputProps={{
-                style: { color: '#ffc107', backgroundColor: '#0e3fa9' }}}
+                style: { color: '#cacfcd', backgroundColor: '#8d86c9', fontFamily:'Baloo 2', fontSize:'1.4rem', paddingTop:'0px', paddingLeft:'0px' }}}
             />
             <TextField
               margin="normal"
@@ -59,15 +59,15 @@ export default function SignIn({checked, handleInputChange, handleOnClick, handl
               onChange={handleInputChange}
               color="secondary"
               InputLabelProps={{
-                style: { color: '#ffc107'},
+                style: { color: '#cacfcd', fontFamily:'Baloo 2'},
                 shrink: true, 
               }}
               InputProps={{
-                style: { color: '#ffc107', backgroundColor: '#0e3fa9' }}}
+                style: { color: '#cacfcd', backgroundColor: '#8d86c9' }}}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="secondary" checked={checked} onClick={() => handleOnClick(checked)} />}
-              label={<span style={{ color: '#ffc107' }}>Sign up</span>}
+              label={<span className='sign-in-log-in' style={{ color: '#cacfcd'}}>Sign up</span>}
             />
             <Button
               type="submit"
@@ -75,9 +75,9 @@ export default function SignIn({checked, handleInputChange, handleOnClick, handl
               variant="contained"
               sx={{ mt: 3, mb: 2,fontSize:'1.2rem' }}
               onClick={()=>handleSignUp()}
-              color="secondary"
+              color="primary"
             >
-              {checked ? (<div>Submit</div>):(<div>Sign In</div>)}
+              {checked ? (<div className='sign-in-log-in'>Submit</div>):(<div className='sign-in-log-in'>Sign In</div>)}
             </Button>
               <LoginSnack signUp={signUp} formData={formData}/>
           </Box>

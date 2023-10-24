@@ -68,3 +68,49 @@ export async function getEnemyPokemon(){
     throw error;
   }
 }
+
+export async function getFirstPokemon(){
+  try {
+    let url = `${API_BASE_URL}/trainer/first-poke`
+    
+    const response = await axios.get(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem("token")}`
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error in getFirstPokemon', error)
+    throw error
+  }
+  }
+
+  export async function updateBattleResults(selectPokemon, battle_result, money, experience) {
+    try {
+      const trainerData = {
+        trainer_data: {
+          pokemon_id: selectPokemon.id,
+          current_health: selectPokemon.health,
+          experience: experience,
+          battle_result: battle_result,
+          money: money,
+        }
+      };
+
+      const response = await axios.put(`${API_BASE_URL}/trainer/battleResults`, trainerData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${localStorage.getItem("token")}`,
+        },
+      });
+    
+  
+      return response.data;
+    } catch (error) {
+      console.error('Error in updateBattleResults:', error);
+      throw error;
+    }
+  }
+  

@@ -11,6 +11,7 @@ import PopoverPopupState from './MovesPop';
 import TrainerContext from '../contexts/TrainerContext';
 import { useContext } from 'react';
 import { getTrainerPokemon } from '../api/authApi';
+import { capitalizeFirst } from '../components/EnemyData';
 
 
 // import { Link } from 'react-router-dom';
@@ -18,16 +19,22 @@ import { getTrainerPokemon } from '../api/authApi';
 
 
 export default function PokeCard({pokemon}) {
-  const { selectPokemon, setSelectPokemon, typeToClassname, typeToIcon} = useContext(TrainerContext)
+  const { selectPokemon, setSelectPokemon, typeToClassname, typeToIcon, enemyDialogue, setEnemyDialogue} = useContext(TrainerContext)
   const typeClassName = typeToClassname[pokemon.types];
   const icon = typeToIcon[pokemon.types];
   const iconClassName = 'pokemon-type-icon'
 
-  console.log(selectPokemon)
+  const choosePokemon = (pokemon) => {
+    const selectStr = `You have chosen ${capitalizeFirst(pokemon.name)}! ${capitalizeFirst(pokemon.name)} is ready for battle!`
+    setEnemyDialogue(selectStr)
+    setSelectPokemon(pokemon)
+  }
+
+ 
 
   const handleTrainerSelect = async () => {
     const battlePoke = await getTrainerPokemon(pokemon.id)
-    setSelectPokemon(battlePoke)
+    choosePokemon(battlePoke)
   }
    
     return (   

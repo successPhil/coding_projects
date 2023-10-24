@@ -12,11 +12,11 @@ const AppTheme = createTheme({
       main: '#2f1a4a', // Dark purple
     },
     secondary: {
-      main: '#8d86c9', // Pokémon Logo Light Blue
+      main: '#cacfcd', // light purple
     },
     background: {
-      default: '#23282D', // White background for contrast
-      paper: '#8d86c9',
+      default: '#23282D', // grey background
+      paper: '#8d86c9', // light purple papers
       secondary: '#ffffff', // A light gray background for other elements
     },
   },

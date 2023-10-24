@@ -7,28 +7,54 @@ import Shop from "./routes/Shop"
 import Items from "./routes/Items"
 import TrainerContext from "./contexts/TrainerContext"
 import { useState, useEffect } from "react"
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { capitalizeFirst } from "./components/EnemyData"
+import AppTheme from './muiComponents/AppTheme.jsx'
+import { ThemeProvider } from "@emotion/react"
+import { CssBaseline } from "@mui/material"
+
 
 function App() {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [userToken, setUserToken] = useState(null)
   const [checked, setChecked] = useState(false)
   const [signUp, setSignUp ] = useState(false)
+  const [ trainerTurn , setTrainerTurn ] = useState(true)
   const [trainerPokemon, setTrainerPokemon] = useState([]);
   const [selectPokemon, setSelectPokemon ] = useState(null)
   const [ enemyPokemon, setEnemyPokemon ] = useState(null)
-  const [ moveInfo, setMoveInfo ] = useState("")
+  const [ enemyDialogue, setEnemyDialogue ] = useState("")
+  const [ trainerDialogue, setTrainerDialogue] = useState("")
+  const [ rewardDialogue, setRewardDialogue ] = useState("")
+  const [ victoryMsg, setVictoryMsg ] = useState("")
+
   const [trainerItems, setTrainerItems] = useState([]);
   const [trainerStore, setTrainerStore] = useState([]);
 
+  
 
-  useEffect( () => {
-    const token = localStorage.getItem("token")
-    if(token) {
-      setUserToken(token)
+
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        setUserToken(token);
+
+        
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
-  }, [])
+  };
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setUserToken(token);
+      fetchData();
+    }
+  }, []);
+
+  
   const typeToClassname = {
     grass: 'grass',
     fire: 'fire',
@@ -72,6 +98,123 @@ function App() {
     fighting: 'f'
   };
 
+  const typeMultipliers = {
+    grass: {
+      doubleDamageFrom: ["flying", "poison", "bug", "fire", "ice"],
+      doubleDamageTo: ["ground", "rock", "water"],
+      halfDamageFrom: ["ground", "water", "grass", "electric"],
+      halfDamageTo: ["flying", "poison", "bug", "steel", "fire", "grass", "dragon"],
+    },
+    fire: {
+      doubleDamageFrom: ["ground", "rock", "water"],
+      doubleDamageTo: ["bug", "steel", "grass", "ice"],
+      halfDamageFrom: ["bug", "steel", "fire", "grass", "ice", "fairy"],
+      halfDamageTo: ["rock", "fire", "water", "dragon"],
+    },
+    water: {
+      doubleDamageFrom: ["grass", "electric"],
+      doubleDamageTo: ["ground", "rock", "fire"],
+      halfDamageFrom: ["steel", "water", "fire", "ice"],
+      halfDamageTo: ["water", "grass", "dragon"]
+    },
+    electric: {
+      doubleDamageFrom: ["ground"],
+      doubleDamageTo: ["flying", "water"],
+      halfDamageFrom: ["flying", "steel", "electric"],
+      halfDamageTo: ["grass", "electric", "dragon"]
+    },
+    psychic: {
+      doubleDamageFrom: ["bug", "ghost", "dark"],
+      doubleDamageTo: ["fighting", "poison"],
+      halfDamageFrom: ["fighting", "psychic"],
+      halfDamageTo: ["steel", "psychic"]
+    },
+    dark: {
+      doubleDamageFrom: ["fighting", "bug", "fairy"],
+      doubleDamageTo: ["ghost", "psychic"],
+      halfDamageFrom: ["ghost", "dark"],
+      halfDamageTo:["fighting", "dark", "fairy"]
+    },
+    steel: {
+      doubleDamageFrom: ["fighting", "ground", "fire"],
+      doubleDamageTo: ["rock", "ice", "fairy"],
+      halfDamageFrom: ["normal", "flying", "rock","bug", "steel", "grass", "psychic", "ice", "dragon", "fairy" ],
+      halfDamageTo: ["steel", "water", "fire", "electric"]
+    },
+    dragon: {
+      doubleDamageFrom: ["ice", "dragon", "fairy"],
+      doubleDamageTo: ["dragon"],
+      halfDamageFrom: ["fire", "water", "grass", "electric"],
+      halfDamageTo: ["steel"]
+    },
+    fairy: {
+      doubleDamageFrom: ["poison", "steel"],
+      doubleDamageTo: ["fighting", "dragon", "dark"],
+      halfDamageFrom: ["fighting", "bug", "dark"],
+      halfDamageTo: ["poison", "steel", "fire"]
+    },
+    normal: {
+      doubleDamageFrom: ["fighting"],
+      doubleDamageTo: [],
+      halfDamageFrom: [],
+      halfDamageTo: ["rock", "steel"]
+    },
+    flying: {
+      doubleDamageFrom: ["rock", "electric", "ice"],
+      doubleDamageTo: ["fighting", "bug", "grass"],
+      halfDamageFrom: ["fighting", "bug", "grass"],
+      halfDamageTo: ["rock", "steel", "electric"]
+    },
+    poison: {
+      doubleDamageFrom: ["ground", "psychic"],
+      doubleDamageTo: ["grass", "fairy"],
+      halfDamageFrom: ["fighting", "poison", "bug", "grass", "fairy"],
+      halfDamageTo: ["poison", "ground", "rock", "ghost" ],
+    },
+    ground: {
+      doubleDamageFrom: ["water", "grass", "ice"],
+      doubleDamageTo: ["poison", "rock", "steel", "fire", "electric"],
+      halfDamageFrom: ["poison", "rock"],
+      halfDamageTo: ["bug", "grass"]
+    },
+    rock: {
+      doubleDamageFrom: ["fighting", "water", "grass", "steel", "ground"],
+      doubleDamageTo: ["flying", "bug", "fire", "ice"],
+      halfDamageFrom: ["normal", "flying", "poison", "fire"],
+      halfDamageTo: ["fighting", "ground", "steel"]
+    },
+    bug: {
+      doubleDamageFrom: ["flying", "rock", "fire"],
+      doubleDamageTo: ["grass", "psychic", "dark"],
+      halfDamageFrom: ["fighting", "ground", "grass"],
+      halfDamageTo: ["fighting", "flying", "poison", "ghost", "steel", "fire", "fairy" ]
+    },
+    ghost: {
+      doubleDamageFrom: ["ghost", "dark"],
+      doubleDamageTo: ["ghost", "psychic"],
+      halfDamageFrom: ["poison", "bug"],
+      halfDamageTo: ["dark"]
+    },
+    ice: {
+      doubleDamageFrom: ["fighting", "rock", "steel", "fire"],
+      doubleDamageTo: ["flying", "ground", "grass", "dragon"],
+      halfDamageFrom: ["ice"],
+      halfDamageTo: ["steel", "fire", "water", "ice"]
+    },
+    fighting: {
+      doubleDamageFrom: ["flying", "psychic", "fairy"],
+      doubleDamageTo: ["normal", "rock", "steel", "ice", "dark"],
+      halfDamageFrom: ["rock", "bug", "dark"],
+      halfDamageTo: ["flying", "poison", "bug", "psychic", "fairy"]
+    }
+
+
+
+
+
+    // ... other types
+  };
+
   
   const handleToken = (token) => {
     setFormData({ username: '', password: '' })
@@ -100,6 +243,11 @@ function App() {
   localStorage.removeItem(keyToRemove);
   setUserToken(false)
   setSignUp(false)
+  setSelectPokemon(null)
+  setTrainerPokemon(null)
+  setEnemyPokemon(null)
+  setTrainerDialogue("")
+  setEnemyDialogue("")
   }
 
   try {
@@ -109,9 +257,36 @@ function App() {
     console.error("Error accessing local storage:", error);
   }
 
+  const endTrainerTurn = () => setTrainerTurn(false)
+  const endEnemyTurn = () => setTrainerTurn(true)
+
   return (
     <>
-    <TrainerContext.Provider value={{userToken, trainerPokemon, setTrainerPokemon, typeToClassname, typeToIcon , selectPokemon, setSelectPokemon, enemyPokemon, setEnemyPokemon, moveInfo, setMoveInfo}}>
+    <TrainerContext.Provider value={{
+      userToken,
+      trainerTurn,
+      endTrainerTurn,
+      endEnemyTurn,
+      trainerPokemon,
+      setTrainerPokemon,
+      typeToClassname, 
+      typeToIcon,
+      typeMultipliers, 
+      selectPokemon,
+      setSelectPokemon,
+      enemyPokemon,
+      setEnemyPokemon,
+      trainerDialogue,
+      setTrainerDialogue,
+      enemyDialogue,
+      setEnemyDialogue,
+      rewardDialogue,
+      setRewardDialogue,
+      victoryMsg,
+      setVictoryMsg
+      }}>
+        <ThemeProvider theme={AppTheme}>
+        <CssBaseline/>
       <Router>
       <ResponsiveAppBar handleLogout={handleLogout} />
         <Routes>
@@ -122,6 +297,7 @@ function App() {
           <Route path="items" element={<Items />} />
         </Routes>
       </Router>
+      </ThemeProvider>
       </TrainerContext.Provider>
     </>
   )

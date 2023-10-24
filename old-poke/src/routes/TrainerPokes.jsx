@@ -1,15 +1,16 @@
-import { useEffect, useContext } from 'react';
+import { useEffect, useContext, useState } from 'react';
 import TrainerContext from '../contexts/TrainerContext';
-import { getTrainerPokemon } from '../api/authApi';
+import { getTrainerPokemon, getFirstPokemon } from '../api/authApi';
 import PokeCard from '../muiComponents/PokeCard';
 import Grid from '@mui/material/Grid';
 import Container from '@mui/material/Container'
+import Button from '@mui/material/Button';
 
 export default function TrainerPokes(){
 
     const token = localStorage.getItem('token')
-    const { trainerPokemon, setTrainerPokemon } = useContext(TrainerContext);
-
+    const { trainerPokemon, setTrainerPokemon, selectPokemon, setSelectPokemon } = useContext(TrainerContext);
+    
     useEffect(() => {
         const fetchTrainerPokemon = async () => {
         if (token) {
@@ -22,7 +23,10 @@ export default function TrainerPokes(){
         }
         };
     fetchTrainerPokemon()
-}, []);
+}, [selectPokemon]);
+
+
+    
 
 
     return (
