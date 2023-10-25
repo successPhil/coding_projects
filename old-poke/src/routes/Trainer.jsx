@@ -1,13 +1,13 @@
-import GameMenu from "./GameMenu"
-import GameDialogue from "./GameDialogue"
-import PlayerData from "./PlayerData"
-import EnemyData from "./EnemyData"
-import MovesList from "./MovesList"
-import GetEnemyButton from "./GetEnemyButton"
-import RewardBox from "./RewardBox"
+import GameMenu from "../components/GameMenu"
+import GameDialogue from "../components/GameDialogue"
+import PlayerData from "../components/PlayerData"
+import EnemyData from "../components/EnemyData"
+import MovesList from "../components/MovesList"
+import GetEnemyButton from "../components/GetEnemyButton"
+import RewardBox from "../components/RewardBox"
 import TrainerContext from "../contexts/TrainerContext"
 import { useContext, useState, useEffect } from "react"
-import { capitalizeFirst } from "./EnemyData"
+import { capitalizeFirst } from "../components/EnemyData"
 import { updateBattleResults, getEnemyPokemon, getFirstPokemon } from "../api/authApi"
 
 
@@ -133,7 +133,7 @@ export default function Trainer(){
     } else {
         damage = baseDamage - baseDefense
     }
-    console.log(damage)
+    console.log(damage, 'CALCULATED DAMAGE')
     let bonusStr = ""
     if (bonus > 1){
         bonusStr = "It's super effective!!!"

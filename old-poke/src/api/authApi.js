@@ -51,6 +51,22 @@ export async function getTrainerPokemon(id=null) {
   }
 }
 
+export async function getTrainerItems(){
+  try {
+    let url = `${API_BASE_URL}/trainer/items`
+    const response = await axios.get(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem("token")}`
+      },
+    })
+    return response.data
+  }
+  catch (error) {
+    console.error('Error fetching items:', error)
+  }
+}
+
 export async function getEnemyPokemon(){
   try {
     let url = `${API_BASE_URL}/trainer/enemy-poke`
@@ -113,4 +129,78 @@ export async function getFirstPokemon(){
       throw error;
     }
   }
+
+export async function updateItems(itemID, quantity) {
+  try {
+    const itemsUsed = {
+      items_used: {
+        [itemID]: quantity
+      }
+    }
+    const response = await axios.put(`${API_BASE_URL}/items/update`, itemsUsed, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem("token")}`,
+      }
+    });
+    return response.data;
+
+  } catch (error) {
+    console.error('Error in updateItems:', error)
+    throw error
+  }
+  }
+
+  export async function makeTransaction(item, quantity, action){
+    try {
+      const transactionData = {
+        transaction: {
+          "item_id": item.id,
+          "item_qty": quantity,
+          "action": action,
+        }
+      }
+      console.log(transactionData, 'function called')
+      const response = await axios.put(`${API_BASE_URL}/trainer/shop/transaction`, transactionData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${localStorage.getItem("token")}`,
+        }
+      });
+      return response.data
+    } catch (error) {
+      console.error('Error in makeTransaction:', error)
+      throw error
+    }
+  }
+
+export async function getTrainer(){
+  try {
+    const response = await axios.get(`${API_BASE_URL}/trainer/`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem("token")}`,
+      }
+    });
+    return response.data
+  } catch (error) {
+    console.error('Error in getTrainer:', error)
+    throw error
+  }
+}
+
+export async function getTrainerShop(){
+  try {
+    const response = await axios.get(`${API_BASE_URL}/trainer/shop`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem("token")}`,
+      }
+    });
+    return response.data
+  } catch (error) {
+    console.error('Error in getTrainerShop:', error)
+    throw error
+  }
+}
   

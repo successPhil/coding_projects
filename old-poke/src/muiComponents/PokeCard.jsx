@@ -14,23 +14,21 @@ import { getTrainerPokemon } from '../api/authApi';
 import { capitalizeFirst } from '../components/EnemyData';
 
 
-// import { Link } from 'react-router-dom';
-// import CustomizedSnackbars from './WatchlistSnack';
-
-
 export default function PokeCard({pokemon}) {
-  const { selectPokemon, setSelectPokemon, typeToClassname, typeToIcon, enemyDialogue, setEnemyDialogue} = useContext(TrainerContext)
-  const typeClassName = typeToClassname[pokemon.types];
-  const icon = typeToIcon[pokemon.types];
-  const iconClassName = 'pokemon-type-icon'
+  const { selectPokemon, setSelectPokemon, typeToClassname, typeToIcon, setEnemyDialogue} = useContext(TrainerContext)
+  
 
   const choosePokemon = (pokemon) => {
-    const selectStr = `You have chosen ${capitalizeFirst(pokemon.name)}! ${capitalizeFirst(pokemon.name)} is ready for battle!`
-    setEnemyDialogue(selectStr)
-    setSelectPokemon(pokemon)
+    console.log(selectPokemon)
+    if (!selectPokemon){
+      setSelectPokemon(pokemon)
+    }
+    if (selectPokemon.name !== pokemon.name){
+      const selectStr = `You have chosen ${capitalizeFirst(pokemon.name)}! ${capitalizeFirst(pokemon.name)} is ready for battle!`
+      setEnemyDialogue(selectStr)
+      setSelectPokemon(pokemon)
+    }
   }
-
- 
 
   const handleTrainerSelect = async () => {
     const battlePoke = await getTrainerPokemon(pokemon.id)
@@ -52,20 +50,20 @@ export default function PokeCard({pokemon}) {
         <CardContent sx={{maxHeight:185, height:100, ml: 3}}>
           <Grid container>
           <Grid item xs={6}>
-          <CardBaloo>name: {pokemon.name}</CardBaloo>
+          <CardBaloo>Name: {capitalizeFirst(pokemon.name)}</CardBaloo>
           {pokemon.types.split(', ').map(type => (
         <span key={type} className={`pokemon-type-icon ${typeToClassname[type]}`} style={{ marginRight: '8px' }}>
           <span className='icon-background'>Z</span>{typeToIcon[type]}
         </span>
       ))}
-          <CardBaloo>type: {pokemon.types}</CardBaloo>
-          <CardBaloo>level: {pokemon.level}</CardBaloo>
+          <CardBaloo>Type: {pokemon.types}</CardBaloo>
+          <CardBaloo>Level: {pokemon.level}</CardBaloo>
         
           </Grid>
           <Grid item xs={6}>
-          <CardBaloo sx={{ml: 2}}>power: {pokemon.power}</CardBaloo>
-          <CardBaloo sx={{ml: 2}}>defense: {pokemon.defense}</CardBaloo>
-          <CardBaloo sx={{ml: 2}}>health: {pokemon.health}/{pokemon.max_health}</CardBaloo>
+          <CardBaloo sx={{ml: 2}}>Power: {pokemon.power}</CardBaloo>
+          <CardBaloo sx={{ml: 2}}>Defense: {pokemon.defense}</CardBaloo>
+          <CardBaloo sx={{ml: 2}}>Health: {pokemon.health}/{pokemon.max_health}</CardBaloo>
           <CardBaloo sx={{ml: 2}}>XP: {pokemon.experience}/{pokemon.totalXP}</CardBaloo>
           </Grid>
           </Grid>

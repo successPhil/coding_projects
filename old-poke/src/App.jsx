@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import Login from "./routes/Login"
-import Trainer from './components/Trainer'
+import Trainer from './routes/Trainer'
 import ResponsiveAppBar from "./muiComponents/AppBar"
 import TrainerPokes from "./routes/TrainerPokes"
 import Shop from "./routes/Shop"
@@ -11,6 +11,7 @@ import { capitalizeFirst } from "./components/EnemyData"
 import AppTheme from './muiComponents/AppTheme.jsx'
 import { ThemeProvider } from "@emotion/react"
 import { CssBaseline } from "@mui/material"
+import { getTrainerItems, getTrainerPokemon, getTrainer, getTrainerShop } from "./api/authApi"
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
   const [userToken, setUserToken] = useState(null)
   const [checked, setChecked] = useState(false)
   const [signUp, setSignUp ] = useState(false)
+  const [ trainer, setTrainer ] = useState(null)
   const [ trainerTurn , setTrainerTurn ] = useState(true)
   const [trainerPokemon, setTrainerPokemon] = useState([]);
   const [selectPokemon, setSelectPokemon ] = useState(null)
@@ -28,18 +30,37 @@ function App() {
   const [ victoryMsg, setVictoryMsg ] = useState("")
 
   const [trainerItems, setTrainerItems] = useState([]);
-  const [trainerStore, setTrainerStore] = useState([]);
+  const [itemsUsed, setItemsUsed ] = useState(1)
+  const [trainerShop, setTrainerShop] = useState([]);
 
+  const getItems = async () => {
+  const items = await getTrainerItems()
+  setTrainerItems(items)
+}
+
+  const getTrainerPokes = async () => {
+    const trainerPokes = await getTrainerPokemon()
+    setTrainerPokemon(trainerPokes)
+  }
+
+  const getUserTrainer = async () => {
+    const userTrainer = await getTrainer()
+    setTrainer(userTrainer)
+  }
+
+  const getUserShop = async () => {
+    const shop = await getTrainerShop()
+    setTrainerShop(shop)
+  }
+  // console.log(trainerShop)
+  // console.log(trainer)
   
-
 
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('token');
       if (token) {
         setUserToken(token);
-
-        
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -51,6 +72,10 @@ function App() {
     if (token) {
       setUserToken(token);
       fetchData();
+      getItems()
+      getTrainerPokes()
+      getUserTrainer()
+      getUserShop()
     }
   }, []);
 
@@ -208,10 +233,6 @@ function App() {
       halfDamageTo: ["flying", "poison", "bug", "psychic", "fairy"]
     }
 
-
-
-
-
     // ... other types
   };
 
@@ -264,9 +285,17 @@ function App() {
     <>
     <TrainerContext.Provider value={{
       userToken,
+      trainer,
+      setTrainer,
+      trainerShop,
+      setTrainerShop,
       trainerTurn,
       endTrainerTurn,
       endEnemyTurn,
+      trainerItems,
+      setTrainerItems,
+      itemsUsed,
+      setItemsUsed,
       trainerPokemon,
       setTrainerPokemon,
       typeToClassname, 

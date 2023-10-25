@@ -26,9 +26,6 @@ export default function TrainerPokes(){
 }, [selectPokemon]);
 
 
-    
-
-
     return (
         <>
         {trainerPokemon ? (
