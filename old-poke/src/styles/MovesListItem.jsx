@@ -1,7 +1,7 @@
 import TrainerContext from "../contexts/TrainerContext";
 import { useContext } from "react";
 import { capitalizeFirst } from "../components/EnemyData";
-export default function MovesListItem({move, endTrainerTurn, trainerTurn, toggleMenu, openMoves, selectPokemon, trainerDialogue, setTrainerDialogue, enemyPokemon, playerAttack}){
+export default function MovesListItem({move, trainerTurn, toggleMenu, openMoves, selectPokemon, enemyPokemon, playerAttack}){
     const upperMove = capitalizeFirst(move.name)
     const { typeToClassname, typeToIcon} = useContext(TrainerContext);
     const typeClassName = typeToClassname[move.type];

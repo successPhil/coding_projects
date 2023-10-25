@@ -14,15 +14,17 @@ import { makeTransaction } from '../api/authApi';
 
 
 export default function TrainerItemsCard({item, isShop }) {
-    const {trainer, trainerTurn, endTrainerTurn, selectPokemon, setSelectPokemon, trainerItems, setTrainerItems, itemsUsed, setItemsUsed, setTrainerDialogue, trainerShop, setTrainerShop } = useContext(TrainerContext)
+    const {trainer, endTrainerTurn, selectPokemon, setSelectPokemon, trainerItems, setTrainerItems, itemsUsed, setItemsUsed, setTrainerDialogue, trainerShop, setTrainerShop } = useContext(TrainerContext)
     const [shouldRedirect, setShouldRedirect] = useState(false)
+    const [ shouldRedirectBattle, setShouldRedirectBattle ] = useState(false)
+
     const navigate = useNavigate()
 
     useEffect(()=>{
-        if (!trainerTurn){
+        if (shouldRedirectBattle){
             navigate("/battle")
         }
-    }, [trainerTurn])
+    }, [shouldRedirectBattle])
 
     useEffect(()=>{
         if (shouldRedirect){
@@ -73,11 +75,11 @@ export default function TrainerItemsCard({item, isShop }) {
             setTrainerDialogue(itemMsg)
             setSelectPokemon((prev) => ({...prev, health: updatedHealth, }))
             endTrainerTurn()
+            setShouldRedirectBattle(true)
         }
     };
 
     const updateShopItems = async () => {
-        console.log(trainer.money, 'CHECKING MONEY IN ITEM CARD')
         if (trainer.money >= item.value * itemsUsed) {
             const updatedItem = trainerShop.find(item => item.id === item.id);
             if (updatedItem){
@@ -85,13 +87,11 @@ export default function TrainerItemsCard({item, isShop }) {
                 const updatedShopItems = trainerShop.map(item =>
                     item.id === updatedItem.id ? updatedItem : item);
                 makeTransaction(item, itemsUsed, 'buy')
-                console.log('Should have called make transaction')
                 setTrainerShop(updatedShopItems)
                 setShouldRedirect(true)
             }
         }
     }
-
 
     return(
         <>
@@ -109,6 +109,7 @@ export default function TrainerItemsCard({item, isShop }) {
                 value={itemsUsed}
                 label="Items"
                 onChange={handleChange}
+                variant='standard'
                 >
 {[...Array(item.quantity).keys()].map(i => (
         <MenuItem value={i + 1} key={`amountItem${item.id}${i + 1}`}><span className='item-button-text'>{i + 1}</span></MenuItem>

@@ -12,7 +12,7 @@ import { updateBattleResults, getEnemyPokemon, getFirstPokemon } from "../api/au
 
 
 export default function Trainer(){ 
-    const { trainerPokemon, trainerTurn, endTrainerTurn, endEnemyTurn, enemyPokemon, setEnemyPokemon, selectPokemon, setSelectPokemon, enemyDialogue, setEnemyDialogue, trainerDialogue, setTrainerDialogue,victoryMsg, setVictoryMsg, rewardDialogue, setRewardDialogue, typeMultipliers } = useContext(TrainerContext);
+    const { trainerPokemon, trainerTurn, endTrainerTurn, endEnemyTurn, enemyPokemon, setEnemyPokemon, selectPokemon, setSelectPokemon, enemyDialogue, setEnemyDialogue, trainerDialogue, setTrainerDialogue,victoryMsg, setVictoryMsg, rewardDialogue, setRewardDialogue, typeMultipliers, setAnimateSelect, setAnimateEnemy } = useContext(TrainerContext);
     const [ openMoves, setOpenMoves ] = useState(false)
     const [ showRewards, setShowRewards ] = useState(false)
 
@@ -29,6 +29,20 @@ export default function Trainer(){
 
     const hideRewards = () => {
         setShowRewards(false)
+    }
+
+    const animateSelectAttack = () => {
+        setAnimateSelect(true)
+        setTimeout(() => {
+            setAnimateSelect(false);
+        }, 400); // Adjust the duration as needed 
+    }
+
+    const animateEnemyAttack = () => {
+        setAnimateEnemy(true)
+        setTimeout(() => {
+            setAnimateEnemy(false);
+        }, 400); // Adjust the duration as needed 
     }
 
     const chooseEnemy = (pokemon) => {
@@ -123,7 +137,7 @@ export default function Trainer(){
     const randomMultiplier = Math.floor(Math.random() * 5) + 2; // Generates a random integer between 2 and 6
     const {pokemonBonus, moveBonus } = calculateType(selectPokemon, move, enemyPokemon) //Order matters - attacking poke, move being used, defending poke
     const bonus = pokemonBonus * moveBonus
-    const basePokemonDamage = Math.ceil(enemyPokemon.power * pokemonBonus)
+    const basePokemonDamage = Math.ceil(selectPokemon.power * pokemonBonus)
     const baseMoveDamage = Math.floor((move.damage * moveBonus * randomMultiplier))
     const baseDamage = basePokemonDamage + baseMoveDamage
     const baseDefense = Math.ceil((selectPokemon.power / 5) + selectPokemon.defense)
@@ -150,12 +164,15 @@ export default function Trainer(){
         updateBattle(selectPokemon, 'win', money, experience, victory_msg)
         setVictoryMsg(victory_msg)
         setRewardDialogue(rewardMessage)
+        animateSelectAttack()
     } else {
         const attack_msg = `${capitalizeFirst(selectPokemon.name)} used ${capitalizeFirst(move.name)} on ${capitalizeFirst(enemyPokemon.name)} dealing ${damage} damage! ${bonusStr}`
         const after_attack = enemyPokemon
         after_attack.health -= damage
         setEnemyPokemon(after_attack)
         setTrainerDialogue(attack_msg)
+       animateSelectAttack()
+        
         endTrainerTurn()
     }
     return damage;
@@ -206,7 +223,7 @@ export default function Trainer(){
         }
 
         await new Promise(resolve => setTimeout(resolve, 2000)); // Add a delay to simulate the attack animation
-
+        
         endEnemyTurn();
     }
     }
@@ -216,8 +233,9 @@ export default function Trainer(){
             const timeout = setTimeout(() => {
                 if (enemyPokemon && selectPokemon){
                     enemyAttack(enemyPokemon, selectPokemon);
+                    animateEnemyAttack()
                 }
-            }, 6000);
+            }, 5000);
             return () => clearTimeout(timeout); // Cleanup the timeout on component cleanup
         }
     }, [trainerTurn])

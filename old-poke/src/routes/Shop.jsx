@@ -6,14 +6,37 @@ import Paper from "@mui/material/Paper"
 import Grid from "@mui/material/Grid"
 import { getTrainer, getTrainerShop } from "../api/authApi"
 import GameText from "../styles/PokemonGB"
+import { useState } from "react"
+import Button from "@mui/material/Button"
 
 
 export default function Shop(){
     const {trainerShop, setTrainerShop , trainer, setTrainer, itemsUsed } = useContext(TrainerContext)
+
+    const [ filteredList, setFilteredList ] = useState("")
+
+
     const getUserTrainer = async () => {
         const userTrainer = await getTrainer()
         setTrainer(userTrainer)
       }
+
+    const filteredValueLow = ()=> {
+        const itemsToFilter = Array.from(trainerShop)
+        setFilteredList(itemsToFilter.sort((a, b) => a.value - b.value))
+    }
+
+    const filteredValueHigh = ()=> {
+        const itemsToFilter = Array.from(trainerShop)
+        setFilteredList(itemsToFilter.sort((a, b) => b.value - a.value ))
+    }
+
+    console.log(trainerShop, 'testing in shop')
+    console.log(filteredList, 'testing onclick')
+
+    const itemsToFilter = Array.from(trainerShop)
+    console.log(itemsToFilter.sort((a , b) => a.value - b.value), 'testing copy of state')
+    
     
     const getUserShop = async () => {
         const shop = await getTrainerShop()
@@ -38,11 +61,31 @@ export default function Shop(){
             </Paper>
             </Grid>
             </Grid>
+            <Grid container mt={3}>
+                <Grid item xs={3}>
+                    <Button variant="contained" color="primary" onClick={filteredValueLow}><span className="item-button-text">Lowest Value</span></Button>
+                </Grid>
+                <Grid item xs={3} >
+                    <Button variant="contained" color="primary" onClick={filteredValueHigh}><span className="item-button-text">Highest Value</span></Button>
+                </Grid>
+            </Grid>
+            <Grid container mt={3}>
+                <Grid item xs={3}>
+                    <Button variant="contained" color="primary" onClick={filteredValueLow}><span className="item-button-text">Lowest Value</span></Button>
+                </Grid>
+                <Grid item xs={3} >
+                    <Button variant="contained" color="primary" onClick={filteredValueHigh}><span className="item-button-text">Highest Value</span></Button>
+                </Grid>
+            </Grid>
         <Grid container spacing={2} sx={{justifyContent:'center'}}>
             
-          {trainerShop.map(item => (
+          {filteredList === "" && trainerShop.map(item => (
             <Grid item xs={9} key={item.id}>
-                
+              <TrainerItemsCard item={item} isShop={true} />
+            </Grid>   
+          ))}
+          {filteredList !== "" && filteredList.map(item => (
+            <Grid item xs={9} key={item.id}>
               <TrainerItemsCard item={item} isShop={true} />
             </Grid>   
           ))}

@@ -48,6 +48,12 @@
     color: #cacfcd
 }
 
+.item-button-text {
+  font-family: 'Baloo 2', sans-serif; 
+  color: #cacfcd;
+  font-size: 1.2rem;
+}
+
 #custom-popover {
   background-color: #cacfcd;  /* Change to the desired color */
   border-radius: 15px;     /* Adjust the border radius */

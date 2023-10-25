@@ -20,6 +20,8 @@ function App() {
   const [checked, setChecked] = useState(false)
   const [signUp, setSignUp ] = useState(false)
   const [ trainer, setTrainer ] = useState(null)
+  const [ animateSelect, setAnimateSelect ] = useState(false)
+  const [ animateEnemy, setAnimateEnemy ] = useState(false)
   const [ trainerTurn , setTrainerTurn ] = useState(true)
   const [trainerPokemon, setTrainerPokemon] = useState([]);
   const [selectPokemon, setSelectPokemon ] = useState(null)
@@ -52,8 +54,6 @@ function App() {
     const shop = await getTrainerShop()
     setTrainerShop(shop)
   }
-  // console.log(trainerShop)
-  // console.log(trainer)
   
 
   const fetchData = async () => {
@@ -292,6 +292,10 @@ function App() {
       trainerTurn,
       endTrainerTurn,
       endEnemyTurn,
+      animateSelect,
+      setAnimateSelect,
+      animateEnemy,
+      setAnimateEnemy,
       trainerItems,
       setTrainerItems,
       itemsUsed,
