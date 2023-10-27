@@ -23,6 +23,11 @@ class Trainer(models.Model):
             self.shop = initial_shop
             self.save()
 
+    def replenish_shop(self):
+        if self.shop:
+            self.shop.replenish_items()
+            self.save()
+
     def make_money(self, amount):
         self.money += amount
 
@@ -205,6 +210,16 @@ class Trainer(models.Model):
             self.enemy_pokemon.clear()
             self.calculate_trainer_power()
             self.save()
+
+    def remove_enemy_pokemon(self):
+        if self.enemy_pokemon.exists():
+            self.enemy_pokemon.clear()
+            self.save()
+
+    def trainer_run(self):
+        self.remove_enemy_pokemon()
+        self.get_enemy_pokemon()
+        self.save()
 
     def remove_pokemon(self, pokemon_id):
         try:

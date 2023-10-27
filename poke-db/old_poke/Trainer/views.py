@@ -30,7 +30,7 @@ class SignupView(CreateAPIView):
             trainer.save() # Save the trainer to associate them with the shop
 
             # Add 10 potions to the trainer
-            potion_data = {"name": "HP Potion", "value": 25, "stat_boost": 50, "item_class": "health", "quantity": 10}
+            potion_data = {"name": "HP Potion", "value": 25, "stat_boost": 50, "item_class": "health", "quantity": 30}
 
             item = Item.objects.create(
                 name=potion_data["name"],
@@ -50,6 +50,18 @@ class SignupView(CreateAPIView):
             }, status=status.HTTP_200_OK)
 
 
+class TrainerView(APIView):
+    def get(self, request):
+        user = request.user
+
+        try:
+            trainer = Trainer.objects.get(user=user)
+            serializer = TrainerSerializer(trainer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
 class FirstPokemonView(APIView):
     def get(self, request):
         user = request.user
@@ -62,9 +74,12 @@ class FirstPokemonView(APIView):
                 serializer = PokemonSerializer(pokemon)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
-                return Response({'message': 'You already have a Pokémon.'}, status=status.HTTP_400_BAD_REQUEST)
+                pokemon = trainer.pokemon.first()
+                serializer = PokemonSerializer(pokemon)
+                return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         
 class EnemyPokemonView(APIView):
     def get(self, request):
@@ -72,6 +87,7 @@ class EnemyPokemonView(APIView):
 
         try:
             trainer = Trainer.objects.get(user=user)
+            print(trainer)
             if not trainer.enemy_pokemon.exists():
                 trainer.get_enemy_pokemon()
                 pokemon = trainer.enemy_pokemon.first()
@@ -80,10 +96,33 @@ class EnemyPokemonView(APIView):
             else:
                 pokemon = trainer.enemy_pokemon.first()
                 serializer = PokemonSerializer(pokemon)
-                return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+                return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class TrainerRunView(APIView):
+    def get(self, request):
+        user = request.user
+
+        try:
+            trainer = Trainer.objects.get(user=user)
+            if trainer.enemy_pokemon.exists():
+                trainer.remove_enemy_pokemon()
+                return Response({"message": "Successfully ran from battle"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class TrainerReplenishShop(APIView):
+    def get(self, request):
+        user = request.user
+
+        try:
+            trainer = Trainer.objects.get(user=user)
+            trainer.replenish_shop()
+            return Response({"message": "Successfully replenished shop"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class TrainerPokemonView(APIView):
     def get(self, request, id=None):
@@ -115,8 +154,16 @@ class BattleResultsView(APIView):
 
             # Retrieve data from the request
             trainer_data = request.data.get('trainer_data')
-            pokemon_id = trainer_data['pokemon_id']
-            current_health = trainer_data['current_health']
+            # pokemon_id = trainer_data['pokemon_id']
+            # current_health = trainer_data['current_health']
+            # max_health = trainer_data['max_health']
+            pokeToUpdate = trainer_data['selectPokemon']
+            pokemon_id = pokeToUpdate['id']
+            current_health = pokeToUpdate['health']
+            max_health = pokeToUpdate['max_health']
+            defense = pokeToUpdate['defense']
+            power = pokeToUpdate['power']
+
             experience = trainer_data['experience']
             battle_result = trainer_data['battle_result']
             money = trainer_data['money']
@@ -131,6 +178,9 @@ class BattleResultsView(APIView):
                 trainer.add_enemy_pokemon()
                 trainer.make_money(money)                
                 trainer_pokemon.health = current_health
+                trainer_pokemon.max_health = max_health
+                trainer_pokemon.defense = defense
+                trainer_pokemon.power = power
                 trainer_pokemon.gain_experience(experience)
                 trainer.save()
                 serializer = PokemonSerializer(trainer_pokemon)
@@ -158,6 +208,7 @@ class ShopView(APIView):
         
     def put(self, request):
         user = request.user
+        print(request, 'INCOMING REQUEST')
         try:
             trainer = Trainer.objects.get(user=user)
             transaction = request.data.get('transaction')

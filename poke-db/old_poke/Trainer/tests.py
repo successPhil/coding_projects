@@ -532,6 +532,17 @@ class SignupViewTest(APITestCase):
         self.trainer.get_enemy_pokemon()
         self.assertEqual(self.trainer.enemy_pokemon.count() - 1, self.initial_enemy_count)
 
+    def test_remove_enemy(self):
+        self.trainer.remove_enemy_pokemon()
+        self.assertEqual(self.trainer.enemy_pokemon.count(), 0)
+    
+    def test_replenish_shop(self):
+        self.trainer.replenish_shop()
+        self.assertEqual(self.trainer.shop.items.count(), 71)
+    
+
+
+
     def test_calculate_trainer_power(self):
         self.trainer.first_pokemon()
         self.trainer.calculate_trainer_power()

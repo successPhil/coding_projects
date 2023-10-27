@@ -7,13 +7,13 @@ class Pokemon(models.Model):
     types = models.CharField(max_length=255)
     front_image_url = models.URLField()
     back_image_url = models.URLField()
-    health = models.IntegerField(default=75)
-    max_health = models.IntegerField(default=75)
-    power = models.IntegerField(default=15)
-    defense = models.IntegerField(default=10)
+    health = models.IntegerField(default=420)
+    max_health = models.IntegerField(default=420)
+    power = models.IntegerField(default=115)
+    defense = models.IntegerField(default=40)
     moves = models.ManyToManyField(Move, related_name='pokemon_moves', blank=True)
     experience = models.IntegerField(default=0)
-    totalXP = models.IntegerField(default=60)
+    totalXP = models.IntegerField(default=1125)
     level = models.IntegerField(default=3)
 
     # Add more fields as needed
