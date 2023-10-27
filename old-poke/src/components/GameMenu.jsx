@@ -1,9 +1,12 @@
 import Pokeball from "../styles/Pokeball";
 import MenuButton from "../styles/MenuButton";
-import { Navigate } from "react-router-dom";
+import { trainerRun } from "../api/authApi";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import TrainerContext from "../contexts/TrainerContext";
 
 export default function GameMenu({moves, openMoves, toggleMenu}) {
+  const { setEnemyPokemon } = useContext(TrainerContext)
 
   const navigate = useNavigate()
 
@@ -17,6 +20,12 @@ export default function GameMenu({moves, openMoves, toggleMenu}) {
     return navigate("/items")
   }
 
+  const handleRun = () => {
+    trainerRun()
+    setEnemyPokemon(null)
+
+  }
+
   return (
     <div className='gameboy-menu-container'>
       <div className='gameboy-menu-box'>
@@ -27,7 +36,7 @@ export default function GameMenu({moves, openMoves, toggleMenu}) {
       </div>
       <div className="button-row">
       <MenuButton label="ITEMS" onClick={(navToItems)}  />
-      <MenuButton label="RUN"  />
+      <MenuButton label="RUN" onClick={handleRun}  />
       </div>
         </div>
       </div>

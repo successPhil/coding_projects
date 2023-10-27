@@ -3,7 +3,7 @@ import TrainerContext from "../contexts/TrainerContext"
 import { useContext } from "react"
 export default function EnemyImage({enemyImage}){
     const { animateEnemy } = useContext(TrainerContext)
-    console.log(animateEnemy, 'INSIDE ENEMY IMAGE COMPONENT')
+    // console.log(animateEnemy, 'INSIDE ENEMY IMAGE COMPONENT')
     return (
     <motion.div 
         initial={{x:0, y:0}}

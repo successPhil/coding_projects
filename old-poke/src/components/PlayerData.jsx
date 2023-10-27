@@ -5,13 +5,15 @@ import { capitalizeFirst } from "./EnemyData";
 import TrainerContext from "../contexts/TrainerContext";
 import { useContext } from "react";
 import SelectImage from "./SelectImage";
+import PlayerAttack from "./PlayerAttack";
 
 export default function PlayerData(){
-    const { selectPokemon } = useContext(TrainerContext)
+    const { selectPokemon, animateSelectAttack } = useContext(TrainerContext)
     const isPlayer = true;
     if (selectPokemon){
         return(<>
         <SelectImage selectImage={selectPokemon.back_image_url}/>
+        {animateSelectAttack && <PlayerAttack />}
         <PlayerBar isPlayer={isPlayer}/>
         <div className="player-name">
         <GameText>{capitalizeFirst(selectPokemon.name)}</GameText>

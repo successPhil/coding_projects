@@ -21,12 +21,13 @@ export default function PokeCard({pokemon}) {
   const choosePokemon = (pokemon) => {
     console.log(selectPokemon)
     if (!selectPokemon){
-      setSelectPokemon(pokemon)
-    }
-    if (selectPokemon.name !== pokemon.name){
       const selectStr = `You have chosen ${capitalizeFirst(pokemon.name)}! ${capitalizeFirst(pokemon.name)} is ready for battle!`
       setEnemyDialogue(selectStr)
       setSelectPokemon(pokemon)
+    } else if (pokemon.id !== selectPokemon.id){
+      setSelectPokemon(pokemon)
+      const selectStr = `You have chosen ${capitalizeFirst(pokemon.name)}! ${capitalizeFirst(pokemon.name)} is ready for battle!`
+      setEnemyDialogue(selectStr)
     }
   }
 

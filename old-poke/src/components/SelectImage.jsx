@@ -1,10 +1,11 @@
 import { motion } from "framer-motion"
 import {  useContext } from "react"
 import TrainerContext from "../contexts/TrainerContext"
+import Pokeball from "../styles/Pokeball"
 export default function SelectImage({selectImage}){
-    const { animateSelect } = useContext(TrainerContext)
-    console.log(animateSelect, 'in select image')
-    return (
+    const { animateSelect, animateSelectAttack } = useContext(TrainerContext)
+    // console.log(animateSelect, 'in select image')
+    return (<>
         <motion.div
         className="select-image"
         initial={{x:0, y:0}}
@@ -18,5 +19,7 @@ export default function SelectImage({selectImage}){
         }}
         />
         </motion.div>
+        </>
+        
         )
 }

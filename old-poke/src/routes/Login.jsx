@@ -26,7 +26,7 @@ export default function Login({handleInputChange, handleToken, handleOnClick, ch
       };
 
       if (token) {
-        return <Navigate to="/battle" />;
+        return <Navigate to="/pokemon" />;
       }
       return (
         <div className="route-text">

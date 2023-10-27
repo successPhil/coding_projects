@@ -5,19 +5,17 @@ import Button from '@mui/material/Button';
 import TrainerContext from '../contexts/TrainerContext';
 import { updateItems } from '../api/authApi';
 import { useContext, useState} from 'react';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import { Select, InputLabel, MenuItem, FormControl } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { capitalizeFirst } from '../components/EnemyData';
-import { makeTransaction } from '../api/authApi';
 
 
-export default function TrainerItemsCard({item, isShop }) {
-    const {trainer, endTrainerTurn, selectPokemon, setSelectPokemon, trainerItems, setTrainerItems, itemsUsed, setItemsUsed, setTrainerDialogue, trainerShop, setTrainerShop } = useContext(TrainerContext)
-    const [shouldRedirect, setShouldRedirect] = useState(false)
+export default function TrainerItemsCard({ item }) {
+    const { endTrainerTurn, selectPokemon, setSelectPokemon, trainerItems, setTrainerItems,  setTrainerDialogue } = useContext(TrainerContext)
     const [ shouldRedirectBattle, setShouldRedirectBattle ] = useState(false)
-
+    const [open, setOpen] = useState(false);
+    const [ itemsUsed, setItemsUsed ] = useState(1)
     const navigate = useNavigate()
 
     useEffect(()=>{
@@ -25,14 +23,6 @@ export default function TrainerItemsCard({item, isShop }) {
             navigate("/battle")
         }
     }, [shouldRedirectBattle])
-
-    useEffect(()=>{
-        if (shouldRedirect){
-            navigate("/items")
-        }
-    }, [shouldRedirect])
-
-    const [open, setOpen] = useState(false);
 
     const handleChange = (event) => {
     setItemsUsed(event.target.value);
@@ -45,7 +35,6 @@ export default function TrainerItemsCard({item, isShop }) {
     const handleOpen = () => {
     setOpen(true);
     };
-
 
 
     const updateTrainerItems = async () => {
@@ -63,35 +52,48 @@ export default function TrainerItemsCard({item, isShop }) {
             setTrainerItems(updatedTrainerItems);
             // Send the update to the backend
             updateItems(item.id, itemsUsed);
-            
-            const healingAmount = item.stat_boost * itemsUsed
-            const missingHealth = selectPokemon.max_health - selectPokemon.health
-            const usedHealingAmount = healingAmount > missingHealth ? missingHealth : healingAmount
-
-            const newHealth = selectPokemon.health + healingAmount
-            const maxHealth = selectPokemon.max_health
-            const updatedHealth = newHealth > maxHealth ? maxHealth : newHealth;
-            const itemMsg = `${capitalizeFirst(selectPokemon.name)} has healed ${usedHealingAmount} from using ${itemsUsed} ${item.name}${itemsUsed > 1 ? "s" : ""}! ${capitalizeFirst(selectPokemon.name)} now has ${updatedHealth} health!!!`
-            setTrainerDialogue(itemMsg)
-            setSelectPokemon((prev) => ({...prev, health: updatedHealth, }))
+            console.log(item.item_class)
+            if (item.item_class === 'health') {
+                const healingAmount = item.stat_boost * itemsUsed
+                const missingHealth = selectPokemon.max_health - selectPokemon.health
+                const usedHealingAmount = healingAmount > missingHealth ? missingHealth : healingAmount
+                const newHealth = selectPokemon.health + healingAmount
+                const maxHealth = selectPokemon.max_health
+                const updatedHealth = newHealth > maxHealth ? maxHealth : newHealth;
+                const itemMsg = `${capitalizeFirst(selectPokemon.name)} has healed ${usedHealingAmount} from using ${itemsUsed} ${item.name}${itemsUsed > 1 ? "s" : ""}! ${capitalizeFirst(selectPokemon.name)} now has ${updatedHealth} health!!!`
+                setTrainerDialogue(itemMsg)
+                setSelectPokemon((prev) => ({...prev, health: updatedHealth, }))
+            }
+            if (item.item_class === 'maxhealth'){
+                console.log('IN ITEM CLASS CONDITIONAL MAX HEALTH')
+                const maxHealthToAdd = item.stat_boost * itemsUsed
+                const newMaxHealth = selectPokemon.max_health + maxHealthToAdd
+                console.log(newMaxHealth)
+                const itemMsg = `${capitalizeFirst(selectPokemon.name)} has gained ${maxHealthToAdd} max health from using ${itemsUsed} ${item.name}${itemsUsed > 1 ? "s" : ""}`
+                setTrainerDialogue(itemMsg)
+                setSelectPokemon((prev) => ({...prev, max_health: newMaxHealth}))
+            }
+            if (item.item_class === 'damage'){
+                console.log('IN ITEM CLASS CONDITIONAL DAMAGE')
+                const powerToAdd = item.stat_boost * itemsUsed
+                const newPower = selectPokemon.power + powerToAdd
+                const itemMsg = `${capitalizeFirst(selectPokemon.name)} has gained ${powerToAdd} power! from using ${itemsUsed} ${item.name}${itemsUsed > 1 ? "s" : ""}`
+                setTrainerDialogue(itemMsg)
+                setSelectPokemon((prev) => ({...prev, power: newPower}))
+            }
+            if (item.item_class === 'defense'){
+                console.log('IN ITEM CLASS CONDITIONAL Defense')
+                const defenseToAdd = item.stat_boost * itemsUsed
+                const newDefense = selectPokemon.defense + defenseToAdd
+                const itemMsg = `${capitalizeFirst(selectPokemon.name)} has gained ${defenseToAdd} defense! from using ${itemsUsed} ${item.name}${itemsUsed > 1 ? "s" : ""}`
+                setTrainerDialogue(itemMsg)
+                setSelectPokemon((prev) => ({...prev, defense: newDefense}))
+            }
             endTrainerTurn()
             setShouldRedirectBattle(true)
         }
     };
 
-    const updateShopItems = async () => {
-        if (trainer.money >= item.value * itemsUsed) {
-            const updatedItem = trainerShop.find(item => item.id === item.id);
-            if (updatedItem){
-                updatedItem.quantity -= itemsUsed;
-                const updatedShopItems = trainerShop.map(item =>
-                    item.id === updatedItem.id ? updatedItem : item);
-                makeTransaction(item, itemsUsed, 'buy')
-                setTrainerShop(updatedShopItems)
-                setShouldRedirect(true)
-            }
-        }
-    }
 
     return(
         <>
@@ -100,14 +102,15 @@ export default function TrainerItemsCard({item, isShop }) {
                 <CardBaloo>{item.name}</CardBaloo>
                 <CardBaloo>Quantity: {item.quantity}</CardBaloo>
                 <CardBaloo>Value: {item.value}</CardBaloo>
+                <FormControl>
+                <InputLabel id="items-controlled-open-filled-select-label"><span className='pokemon-type-input'>Select Amount</span></InputLabel>
                 <Select
-                labelId="demo-controlled-open-select-label"
-                id="demo-controlled-open-select"
+                labelId="items-controlled-open-select-label"
+                id="items-controlled-open-select"
                 open={open}
                 onClose={handleClose}
                 onOpen={handleOpen}
                 value={itemsUsed}
-                label="Items"
                 onChange={handleChange}
                 variant='standard'
                 >
@@ -115,8 +118,8 @@ export default function TrainerItemsCard({item, isShop }) {
         <MenuItem value={i + 1} key={`amountItem${item.id}${i + 1}`}><span className='item-button-text'>{i + 1}</span></MenuItem>
     ))}
                 </Select>
-                {!isShop && selectPokemon && <Button variant='contained' color='primary' onClick={updateTrainerItems}><span className='item-button-text'>Use Item</span></Button>}
-                {isShop && selectPokemon && <Button variant='contained' color='primary' onClick={updateShopItems}><span className='item-button-text'>Buy Item</span></Button>}
+                </FormControl>
+                {selectPokemon && <Button variant='contained' color='primary' onClick={updateTrainerItems}><span className='item-button-text'>Use Item</span></Button>}
             </CardContent>
         </Paper>
 

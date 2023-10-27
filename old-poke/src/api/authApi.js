@@ -51,6 +51,21 @@ export async function getTrainerPokemon(id=null) {
   }
 }
 
+export async function getGamePokemon(){
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/pokemon`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem("token")}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error in getGamePokemon', error)
+    throw error;
+    }
+  }
+
 export async function getTrainerItems(){
   try {
     let url = `${API_BASE_URL}/trainer/items`
@@ -85,6 +100,38 @@ export async function getEnemyPokemon(){
   }
 }
 
+export async function trainerRun() {
+  try {
+    let url = `${API_BASE_URL}/trainer/run`
+    const response = await axios.get(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem("token")}`
+      },
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error in trainerRun:', error)
+    throw error;
+  }
+}
+
+export async function replenishShop() {
+  try {
+    let url = `${API_BASE_URL}/trainer/replenish-shop`
+    const response = await axios.get(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem("token")}`
+      },
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error in replenishShop:', error)
+    throw error;
+  }
+}
+
 export async function getFirstPokemon(){
   try {
     let url = `${API_BASE_URL}/trainer/first-poke`
@@ -105,15 +152,25 @@ export async function getFirstPokemon(){
 
   export async function updateBattleResults(selectPokemon, battle_result, money, experience) {
     try {
+
       const trainerData = {
         trainer_data: {
-          pokemon_id: selectPokemon.id,
-          current_health: selectPokemon.health,
-          experience: experience,
+          selectPokemon: selectPokemon,
           battle_result: battle_result,
           money: money,
+          experience: experience
+
         }
-      };
+      }
+      // const trainerData = {
+      //   trainer_data: {
+      //     pokemon_id: selectPokemon.id,
+      //     current_health: selectPokemon.health,
+      //     experience: experience,
+      //     battle_result: battle_result,
+      //     money: money,
+      //   }
+      // };
 
       const response = await axios.put(`${API_BASE_URL}/trainer/battleResults`, trainerData, {
         headers: {

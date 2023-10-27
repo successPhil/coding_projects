@@ -4,6 +4,7 @@ import PlayerBar from "./PlayerBar"
 import TrainerContext from "../contexts/TrainerContext"
 import { useContext } from "react"
 import EnemyImage from "./EnemyImage"
+import EnemyAttack from "./EnemyAttack"
 
 export function capitalizeFirst(name){
     return name[0].toUpperCase() + name.slice(1)
@@ -11,12 +12,12 @@ export function capitalizeFirst(name){
 }
 
 export default function EnemyData() {
-    const { enemyPokemon } = useContext(TrainerContext)
+    const { enemyPokemon, animateEnemyAttack } = useContext(TrainerContext)
 
     if (enemyPokemon){
         return (<>
         <EnemyImage enemyImage={enemyPokemon.front_image_url}/>
-        
+        {animateEnemyAttack && <EnemyAttack />}
         <PlayerBar /> 
         <div className="enemy-name">
             <GameText>{capitalizeFirst(enemyPokemon.name)}</GameText>

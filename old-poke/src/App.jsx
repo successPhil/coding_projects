@@ -7,11 +7,10 @@ import Shop from "./routes/Shop"
 import Items from "./routes/Items"
 import TrainerContext from "./contexts/TrainerContext"
 import { useState, useEffect } from "react"
-import { capitalizeFirst } from "./components/EnemyData"
 import AppTheme from './muiComponents/AppTheme.jsx'
 import { ThemeProvider } from "@emotion/react"
 import { CssBaseline } from "@mui/material"
-import { getTrainerItems, getTrainerPokemon, getTrainer, getTrainerShop } from "./api/authApi"
+import { getTrainerItems, getTrainerPokemon, getTrainer, getTrainerShop, getGamePokemon } from "./api/authApi"
 
 
 function App() {
@@ -21,7 +20,10 @@ function App() {
   const [signUp, setSignUp ] = useState(false)
   const [ trainer, setTrainer ] = useState(null)
   const [ animateSelect, setAnimateSelect ] = useState(false)
+  const [ animateSelectAttack, setAnimateSelectAttack ] = useState(false)
+  const [ animateEnemyAttack, setAnimateEnemyAttack ] = useState(false)
   const [ animateEnemy, setAnimateEnemy ] = useState(false)
+  const [ animateColor, setAnimateColor ] = useState("")
   const [ trainerTurn , setTrainerTurn ] = useState(true)
   const [trainerPokemon, setTrainerPokemon] = useState([]);
   const [selectPokemon, setSelectPokemon ] = useState(null)
@@ -76,6 +78,7 @@ function App() {
       getTrainerPokes()
       getUserTrainer()
       getUserShop()
+      getGamePokemon()
     }
   }, []);
 
@@ -280,6 +283,7 @@ function App() {
 
   const endTrainerTurn = () => setTrainerTurn(false)
   const endEnemyTurn = () => setTrainerTurn(true)
+  console.log(selectPokemon)
 
   return (
     <>
@@ -294,12 +298,16 @@ function App() {
       endEnemyTurn,
       animateSelect,
       setAnimateSelect,
+      animateSelectAttack,
+      setAnimateSelectAttack,
+      animateEnemyAttack,
+      setAnimateEnemyAttack,
+      animateColor,
+      setAnimateColor,
       animateEnemy,
       setAnimateEnemy,
       trainerItems,
       setTrainerItems,
-      itemsUsed,
-      setItemsUsed,
       trainerPokemon,
       setTrainerPokemon,
       typeToClassname, 

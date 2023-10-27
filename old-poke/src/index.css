@@ -43,6 +43,11 @@
   font-size: 20px; /* Set the desired font size */
 }
 
+.pokeball-attack {
+  font-family: 'Essentiarum', sans-serif; /* Use the custom font */
+  font-size: 80px; /* Set the desired font size */
+}
+
 .app-text {
     font-family: 'Baloo 2', sans-serif; 
     color: #cacfcd
@@ -52,6 +57,12 @@
   font-family: 'Baloo 2', sans-serif; 
   color: #cacfcd;
   font-size: 1.2rem;
+}
+
+.pokemon-type-input {
+  font-family: 'Baloo 2', sans-serif; 
+  color: #cacfcd;
+  font-size: 1.1rem;
 }
 
 #custom-popover {
@@ -83,7 +94,7 @@ div:hover > .bar {
   }
   
 .water {
-    color: #2196f3; /* Blue */
+    color: #009FFD; /* Blue */
   }
 
 .electric {
@@ -91,7 +102,7 @@ div:hover > .bar {
   }
   
 .psychic {
-    color: #e91e63; /* Pink */
+    color: #7D5BA6; /* Pink */
   }
   
 .dark {
@@ -105,7 +116,7 @@ div:hover > .bar {
   }
   
 .dragon {
-    color: #673ab7; /* Purple */
+    color: #F2AF29 /* Purple */
   }
   
 .fairy {
@@ -121,7 +132,7 @@ div:hover > .bar {
   }
   
 .poison {
-    color: #9c27b0; /* Dark Purple */
+    color: #DDD92A; /* Dark Purple */
   }
   
 .ground {
@@ -129,7 +140,7 @@ div:hover > .bar {
   }
   
 .rock {
-    color: #8bc34a; /* Light Green */
+    color: #716A5C; /* Light Green */
   }
   
 .bug {
@@ -195,10 +206,11 @@ div:hover > .bar {
   .gameboy-menu-container {
     position: absolute;
   bottom: 20px; /* Adjust as needed for desired distance from the bottom */
-  left: 72%; /* Adjust as needed for desired distance from the left */
-    width: 25%; /* Adjust the desired width */
+  left: 75%; /* Adjust as needed for desired distance from the left */
+    width: 400px; /* Adjust the desired width */
     height: 200px; /* Adjust the desired height */
     margin-bottom: 28px; /* Add margin bottom */; /* Add margin left */
+    
    
   }
   
@@ -460,3 +472,32 @@ div:hover > .bar {
     height:420px;
     width:260px
   }
+
+  .MuiFilledInput-root {
+    background-color: #2f1a4a !important; /* Dark purple background */
+    color: #cacfcd !important; /* Light grey text color */
+    border: 2px solid #cacfcd !important; /* Border color */
+    height:50px;
+    width: 240px;
+  }
+
+  #items-controlled-open-select.MuiSelect-select.MuiSelect-standard.MuiInputBase-input.MuiInput-input {
+    background-color: #2f1a4a !important;
+    color: #cacfcd !important; /* Light grey text color */
+    border: 2px solid #cacfcd !important; /* Border color */
+    height:30px;
+    width: 140px;
+    text-align: center;
+    padding-left:10px;
+  }
+
+  #shop-controlled-open-select.MuiSelect-select.MuiSelect-standard.MuiInputBase-input.MuiInput-input {
+    background-color: #2f1a4a !important;
+    color: #cacfcd !important; /* Light grey text color */
+    border: 2px solid #cacfcd !important; /* Border color */
+    height:30px;
+    width: 140px;
+    text-align: center;
+    padding-left:10px;
+  }
+
